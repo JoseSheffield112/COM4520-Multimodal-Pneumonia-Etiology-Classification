@@ -33,3 +33,4 @@ MIMIC-iv pre-processing code
 2. Modify every `origin_root` in the scripts found in `/scripts/features` to point to the dataset
 3. Run `/scripts/build-features.py`
 4. Find the output csv files in `/intermediates` and npy files in `/features`
+5. Find the compiled output npz file in `/output`
