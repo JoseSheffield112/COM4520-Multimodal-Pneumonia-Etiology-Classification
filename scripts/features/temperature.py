@@ -38,7 +38,7 @@ def main():
             arr[row.hour] = row.value
         temperatures = np.append(temperatures, np.array([arr]), axis=0)
     print('Saving temperatures feature...')
-    np.save(output_root + '/temperatures.npy', temperatures)
+    np.save(output_root + '/temperature.npy', temperatures)
     print('Shape: ', temperatures.shape)
     print('Saved temperatures!\n')
     return temperatures

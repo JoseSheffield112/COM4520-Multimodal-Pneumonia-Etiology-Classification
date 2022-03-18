@@ -32,7 +32,7 @@ def main():
             arr[row.hour] = row.value
         heartrates = np.append(heartrates, np.array([arr]), axis=0)
     print('Saving heartrates feature...')
-    np.save(output_root + '/heartrates.npy', heartrates)
+    np.save(output_root + '/heartrate.npy', heartrates)
     print('Shape: ', heartrates.shape)
     print('Saved heartrates!\n')
     return heartrates
