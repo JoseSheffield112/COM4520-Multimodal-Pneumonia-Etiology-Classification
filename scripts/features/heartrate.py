@@ -35,6 +35,7 @@ def main():
     np.save(output_root + '/heartrates.npy', heartrates)
     print('Shape: ', heartrates.shape)
     print('Saved heartrates!\n')
+    return heartrates
 
 def process_patient(chunk):
     first = chunk.head(1)

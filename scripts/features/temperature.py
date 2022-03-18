@@ -41,6 +41,7 @@ def main():
     np.save(output_root + '/temperatures.npy', temperatures)
     print('Shape: ', temperatures.shape)
     print('Saved temperatures!\n')
+    return temperatures
 
 def process_patient(chunk):
     first = chunk.head(1)
