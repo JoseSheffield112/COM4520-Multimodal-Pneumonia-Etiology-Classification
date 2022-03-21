@@ -19,7 +19,7 @@ def main():
     output_path = Path(interm_root + '/aidsresults.csv')  
     output_path.parent.mkdir(parents=True, exist_ok=True) 
     data.to_csv(output_path)
-    print('Saved aidstesults!')
+    print('Saved aidsresults!')
     print('Generating npy...')
     aids = np.empty((0), float)
     print('Patient count: ', len(set(data.index.values)))
