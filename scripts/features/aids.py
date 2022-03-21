@@ -31,7 +31,8 @@ def main():
     return aids
 
 def process_patient(chunk):
-    chunk['has_aids'] = chunk == '042'
+    icd_filter = ['042', '043', '044', '0449']
+    chunk['has_aids'] = chunk.isin(icd_filter)
     chunk = chunk.drop(columns='icd_code')
     chunk = chunk[~chunk.has_aids.duplicated(keep='first')]
     if True in chunk.values:
