@@ -39,9 +39,9 @@ MIMIC-iv pre-processing code
 # Features implemented
 | Feature | Description | Values | Shape for n patients |
 | --- |---| --- | --- |
-| AIDS | Has the patient ever had AIDS? | 1 if Yes, 0 if No | (n, 1) |
+| AIDS | Whether the patient has ever had Acquired ImmunoDeficiency Syndrome? | 1, 0 | (n, 1) |
 | Heartrate | What was the patients' hourly heartrate in their first day in the ICU? | Beats per minute | (n, 24)
-| MSCancer | Has the patient ever had metastatic cancer? | 1 if Yes, 0 if No | (n, 1) |
+| MSCancer | Whether the patient has ever had metastatic cancer? | 1, 0 | (n, 1) |
 | Temperature | What was the patients' hourly temperature in their first day in the ICU? | Degrees C | (n, 24)
 
 # Using this repository with low memory
