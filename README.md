@@ -36,7 +36,13 @@ MIMIC-iv pre-processing code
 4. Find the output csv files in `/intermediates` and npy files in `/features`
 5. Find the compiled output npz file in `/output`
 
-# 
+# Features implemented
+| Feature | Description | Values | Shape for n patients |
+| --- |---| --- | --- |
+| AIDS | Has the patient ever had AIDS? | 1 if Yes, 0 if No | (n, 1) |
+| Heartrate | What was the patients' hourly heartrate in their first day in the ICU? | Beats per minute | (n, 24)
+| MSCancer | Has the patient ever had metastatic cancer? | 1 if Yes, 0 if No | (n, 1) |
+| Temperature | What was the patients' hourly temperature in their first day in the ICU? | Degrees C | (n, 24)
 
 # Using this repository with low memory
 The dataset we are working with is quite large so you will have trouble processing it if you are working on a machine with low memory. There are several ways we have allowed the code to be run with lower memory usage, but on some machines it will still be necessary to use a [reduced or stripped](#reduce-or-strip-an-existing-dataset) version of MIMIC-iv rather than using the original. A [cohort](#generating-a-cohort-dataset-from-the-complete-dataset-and-a-cohort) is an example of a reduced dataset.
