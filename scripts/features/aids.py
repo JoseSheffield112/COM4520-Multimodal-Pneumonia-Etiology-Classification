@@ -6,6 +6,8 @@ origin_root = 'datasets/mimic-iv/mimic-iv-full-cohort'
 interm_root = 'intermediates/'
 output_root = 'features/'
 
+icd_filter = ['042', '043', '044', '0449']
+
 def main():
     print('Reading diagnoses_icd...')
     columns = ['subject_id', 'icd_code']
@@ -31,7 +33,6 @@ def main():
     return aids
 
 def process_patient(chunk):
-    icd_filter = ['042', '043', '044', '0449']
     chunk['has_aids'] = chunk.isin(icd_filter)
     chunk = chunk.drop(columns='icd_code')
     chunk = chunk[~chunk.has_aids.duplicated(keep='first')]

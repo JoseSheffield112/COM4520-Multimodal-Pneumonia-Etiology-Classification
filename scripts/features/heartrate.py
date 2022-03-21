@@ -6,11 +6,12 @@ origin_root = 'datasets/mimic-iv/mimic-iv-full-cohort'
 interm_root = 'intermediates/'
 output_root = 'features/'
 
+itemid_filter = [211, 220045]
+
 def main():
     print('Reading chartevents...')
     columns = ['subject_id', 'stay_id', 'charttime', 'itemid', 'value']
     iter_csv = pd.read_csv(origin_root + '/icu/chartevents.csv', header=0, index_col=[0], iterator=True, chunksize=10000, usecols=columns)
-    itemid_filter = [211, 220045]
     data = pd.concat([chunk[chunk.itemid.isin(itemid_filter)] for chunk in iter_csv])
 
     print('Processing heartrateevents...')
