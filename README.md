@@ -37,12 +37,12 @@ MIMIC-iv pre-processing code
 5. Find the compiled output npz file in `/output`
 
 # Features implemented
-| Feature | Description | Values | Values per patient |
+| Feature | Description | Value range | Values per patient |
 | --- |---| --- | --- |
-| AIDS | Whether the patient has ever had Acquired ImmunoDeficiency Syndrome | x ∈ {0, 1} | 1 |
-| Heartrate | The patients' hourly heartrate in their first day in the ICU | 0 < x < 300 | 24
-| MSCancer | Whether the patient has ever had metastatic cancer | x ∈ {0, 1} | 1 |
-| Temperature | The patients' hourly temperature in degrees C in their first day in the ICU | 25 < x < 50 | 24
+| AIDS | Whether the patient has Acquired ImmunoDeficiency Syndrome | x ∈ {0, 1} | 1 |
+| Heartrate | The patients' hourly heartrate over 24h | 0 < x < 300 | 24
+| MSCancer | Whether the patient has metastatic cancer | x ∈ {0, 1} | 1 |
+| Temperature | The patients' hourly temperature (°C) over 24h | 25 < x < 50 | 24
 
 # Using this repository with low memory
 The dataset we are working with is quite large so you will have trouble processing it if you are working on a machine with low memory. There are several ways we have allowed the code to be run with lower memory usage, but on some machines it will still be necessary to use a [reduced or stripped](#reduce-or-strip-an-existing-dataset) version of MIMIC-iv rather than using the original. A [cohort](#generating-a-cohort-dataset-from-the-complete-dataset-and-a-cohort) is an example of a reduced dataset.
