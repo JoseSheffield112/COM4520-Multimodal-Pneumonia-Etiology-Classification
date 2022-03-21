@@ -44,7 +44,7 @@ def process_patient(chunk):
     chunk['hour'] = (((pd.to_datetime(chunk.charttime) - pd.to_datetime(first.charttime)).dt.total_seconds()) / 3600).round(0).astype(int)
     chunk = chunk.drop(columns=['stay_id', 'charttime'])
     chunk = chunk[~chunk.hour.duplicated(keep='first')]
-    chunk = chunk[(chunk.hour < 24) & (chunk.value.astype(float) >= 0) & (chunk.value.astype(float) <= 300)]
+    chunk = chunk[(chunk.hour < 24) & (chunk.value.astype(float) > 0) & (chunk.value.astype(float) < 300)]
     return chunk
 
 if __name__ == '__main__':
