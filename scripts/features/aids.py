@@ -1,10 +1,7 @@
 import numpy as np
 import pandas as pd
 from pathlib import Path
-
-origin_root = 'datasets/mimic-iv/mimic-iv-full-cohort'
-interm_root = 'intermediates/'
-output_root = 'features/'
+from config import *
 
 icd_filter = ['042', '043', '044', '0449']
 
@@ -18,16 +15,16 @@ def main():
     data = pd.concat([process_patient(chunk) for chunk in [data[data.index == subject] for subject in data.index.unique()]])
 
     print('Saving...')
-    output_path = Path(interm_root + '/aidsresults.csv')  
-    output_path.parent.mkdir(parents=True, exist_ok=True) 
-    data.to_csv(output_path)
+    intermediate_path = Path(intermediate_root + '/aidsresults.csv')  
+    intermediate_path.parent.mkdir(parents=True, exist_ok=True) 
+    data.to_csv(intermediate_path)
     print('Saved aidsresults!')
     print('Generating npy...')
     aids = np.empty((0), float)
     print('Patient count: ', len(set(data.index.values)))
     aids = data.values.astype(int)
     print('Saving aids feature...')
-    np.save(output_root + '/aids.npy', aids)
+    np.save(feature_root + '/aids.npy', aids)
     print('Shape: ', aids.shape)
     print('Saved aids!\n')
     return aids

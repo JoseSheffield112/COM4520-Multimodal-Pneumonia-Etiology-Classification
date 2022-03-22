@@ -1,10 +1,7 @@
 import numpy as np
 import pandas as pd
 from pathlib import Path
-
-origin_root = 'datasets/mimic-iv/mimic-iv-full-cohort'
-interm_root = 'intermediates/'
-output_root = 'features/'
+from config import *
 
 itemid_filter = [676, 678, 223761, 223762]
 
@@ -25,9 +22,9 @@ def main():
     data = data.drop(columns='itemid')
     
     print('Saving...')
-    output_path = Path(interm_root + '/temperatureevents.csv')  
-    output_path.parent.mkdir(parents=True, exist_ok=True) 
-    data.to_csv(output_path)
+    intermediate_path = Path(intermediate_root + '/temperatureevents.csv')  
+    intermediate_path.parent.mkdir(parents=True, exist_ok=True) 
+    data.to_csv(intermediate_path)
     print('Saved temperatureevents!')
     print('Generating npy...')
     temperatures = np.empty((0,24), float)
@@ -39,7 +36,7 @@ def main():
             arr[row.hour] = row.value
         temperatures = np.append(temperatures, np.array([arr]), axis=0)
     print('Saving temperatures feature...')
-    np.save(output_root + '/temperature.npy', temperatures)
+    np.save(feature_root + '/temperature.npy', temperatures)
     print('Shape: ', temperatures.shape)
     print('Saved temperatures!\n')
     return temperatures
