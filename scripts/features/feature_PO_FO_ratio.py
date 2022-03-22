@@ -16,7 +16,7 @@ import scripts.config as const
 bg_sqlfile = 'mimic-iv/concepts/postgres/measurement/bg.sql'
 postgresfunctions_sqlfile = 'mimic-iv/concepts/postgres/postgres-functions.sql'
 
-# Set this to false if you've already created the bg table (Blood and gasses table).
+# Set this to True if you've already created the bg table (Blood and gasses table).
 BG_EXISTS = True
 
 def main():
