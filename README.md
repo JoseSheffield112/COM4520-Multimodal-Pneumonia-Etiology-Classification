@@ -11,27 +11,24 @@ MIMIC-iv pre-processing code
 ## Generating a cohort dataset from the complete dataset and a cohort
 1. Place the complete dataset inside the `/datasets` folder
 2. Place the cohort folder inside the `/cohorts` folder
-3. Modify `origin_root` in `/scripts/build-tables.py` to point to the complete dataset
-4. Modify `output_root` in `/scripts/build-tables.py` to point to a new location
-5. Modify `cohort_root` in `/scripts/build-tables.py` to point to the cohort folder
+5. Modify `in_data_root`, `out_data_root`, `cohort_root` in `/scripts/config.py` to point to the respective folders
 6. Run `/scripts/build-tables.py`
 
 ## Reduce or strip an existing dataset
 1. Place the dataset inside the `/datasets` folder
-2. Modify `origin_root` in `/scripts/build-tables.py` to point to the dataset
-3. Modify `output_root` in `/scripts/build-tables.py` to point to a new location
+2. Modify `origin_root`, `output_root` in `/scripts/config.py` to point to the dataset
 4. Adjust the `build_tables` call in `/scripts/build-tables.py` to your liking
 5. Run `/scripts/build-tables.py`
 
 ## Generating a feature from an existing dataset
 1. Place the dataset inside the `/datasets` folder
-2. Modify `origin_root` in the corresponding script from `/scripts/features` to point to the dataset
+2. Modify `origin_root` in `scripts/config.py` to point to the dataset
 3. Run the corresponding script from `/scripts/features`
 4. Find the output csv file in `/intermediates` and npy file in `/features`
 
 ## Generating every feature from an existing dataset
 1. Place the dataset inside the `/datasets` folder
-2. Modify every `origin_root` in the scripts found in `/scripts/features` to point to the dataset
+2. Modify `origin_root` in `scripts/config.py` to point to the dataset
 3. Run `/scripts/build-features.py`
 4. Find the output csv files in `/intermediates` and npy files in `/features`
 5. Find the compiled output npz file in `/output`
