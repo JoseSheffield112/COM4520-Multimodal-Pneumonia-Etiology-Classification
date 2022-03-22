@@ -11,3 +11,10 @@ feature_script_root = 'scripts/features'
 intermediate_root = 'intermediates/'
 feature_root = 'features'
 output_root = 'output'
+
+#Sql databse connection data 
+#Path to json file that contains information needed to connect to a postgresql database
+connection_json_root = 'config/connection.json'
+
+# Root for the mimic-code repository. Needed to find some useful sql scripts for imputing features. 
+mimic_code_root = 'C:/dev/darwin/mimic-code'

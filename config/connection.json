@@ -1,0 +1,16 @@
+{
+    "mimiciii": {
+        "dbname": "mimic",
+        "user": "postgres",
+        "host": "",
+        "password": "Boracel123",
+        "port": "5432"
+    },
+    "mimiciv": {
+        "dbname": "mimiciv",
+        "user": "postgres",
+        "host": "",
+        "password": "Boracel123",
+        "port": "5432"
+    }
+}
