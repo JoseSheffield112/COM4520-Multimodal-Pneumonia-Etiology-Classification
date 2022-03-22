@@ -24,12 +24,12 @@ def build_tables(mode='full', sample=None, cohort=False):
 
     subject_ids = build_patients(column_dict['patients'], sample, cohort)
     hadm_ids = build_admissions(subject_ids, column_dict['admissions'])
-    stay_ids = build_icustays(hadm_ids, column_dict['icustays'])
-    build_diagnoses_icd(hadm_ids, column_dict['diagnoses_icd'])
-    build_labevents(hadm_ids, column_dict['labevents'], icd_dict['labevents']) # 12.8 GB input
-    build_services(hadm_ids, column_dict['services'])
-    build_chartevents(stay_ids, column_dict['chartevents'], icd_dict['chartevents']) # 27.7 GB input
-    build_outputevents(stay_ids, column_dict['outputevents'], icd_dict['outputevents'])
+    stay_ids = build_icustays(subject_ids, hadm_ids, column_dict['icustays'])
+    build_diagnoses_icd(subject_ids, hadm_ids, column_dict['diagnoses_icd'])
+    build_labevents(subject_ids, hadm_ids, column_dict['labevents'], icd_dict['labevents']) # 12.8 GB input
+    build_services(subject_ids, hadm_ids, column_dict['services'])
+    build_chartevents(subject_ids, hadm_ids, stay_ids, column_dict['chartevents'], icd_dict['chartevents']) # 27.7 GB input
+    build_outputevents(subject_ids, hadm_ids, stay_ids, column_dict['outputevents'], icd_dict['outputevents'])
 
 def get_column_dict(mode):
     return {
@@ -74,127 +74,127 @@ def get_icd_dict():
 
 def build_patients(columns=None, samplesize=None, cohort=False):
     print('Building patients...')
-    iter_csv = pd.read_csv(origin_root + '/core/patients.csv', header=0, index_col=[0], iterator=True, chunksize=1000, usecols=columns)
+    iter_csv = pd.read_csv(in_data_root + '/core/patients.csv', header=0, index_col=[0], iterator=True, chunksize=1000, usecols=columns)
     data = pd.concat([chunk[chunk.anchor_age > 15] for chunk in iter_csv])
     print('Read origin')
     if cohort:
         print('Reading cohort...')
         cohort = pd.read_csv(cohort_root + '/data.csv', header=0, index_col=[0])
-        subject_ids = cohort.index.tolist()
+        subject_ids = cohort.index.unique()
         data = data[data.index.isin(subject_ids)]
     if samplesize:
         data = data.head(samplesize)
         print("Reduced sample size to " + str(samplesize) + " records")
-    output_path = Path(output_root + '/core/patients.csv')
+    output_path = Path(out_data_root + '/core/patients.csv')
     output_path.parent.mkdir(parents=True, exist_ok=True) 
     data.to_csv(output_path)
     print('Saved patients!\n')
-    return data.index.tolist()
+    return data.index.unique()
 
 def build_admissions(subject_ids=None, columns=None):
     print('Building admissions...')
-    iter_csv = pd.read_csv(origin_root + '/core/admissions.csv', header=0, index_col=[0], iterator=True, chunksize=1000, usecols=columns)
-    if subject_ids:
+    iter_csv = pd.read_csv(in_data_root + '/core/admissions.csv', header=0, index_col=[0], iterator=True, chunksize=1000, usecols=columns)
+    if subject_ids.any():
         data = pd.concat([chunk[chunk.index.isin(subject_ids)] for chunk in iter_csv])
     else:
         data = pd.concat([chunk for chunk in iter_csv])
     print('Read origin')
     data = data[~data.index.duplicated(keep='first')]
     print('Filtered duplicates')
-    output_path = Path(output_root + '/core/admissions.csv')  
+    output_path = Path(out_data_root + '/core/admissions.csv')  
     output_path.parent.mkdir(parents=True, exist_ok=True) 
     data.to_csv(output_path)
     print('Saved admissions!\n')
-    return data['hadm_id'].tolist()
+    return data['hadm_id'].unique()
 
-def build_diagnoses_icd(hadm_ids=None, columns=None):
+def build_diagnoses_icd(subject_ids=None, hadm_ids=None, columns=None):
     print('Building diagnoses_icd...')
-    iter_csv = pd.read_csv(origin_root + '/hosp/diagnoses_icd.csv', header=0, index_col=[0], iterator=True, chunksize=1000, usecols=columns)
-    if hadm_ids:
-        data = pd.concat([chunk[(chunk.hadm_id.isin(hadm_ids)) & (chunk.icd_version==9)] for chunk in iter_csv])
+    iter_csv = pd.read_csv(in_data_root + '/hosp/diagnoses_icd.csv', header=0, index_col=[0], iterator=True, chunksize=1000, usecols=columns)
+    if hadm_ids.any():
+        data = pd.concat([chunk[((chunk.index.isin(subject_ids)) | (chunk.hadm_id.isin(hadm_ids))) & (chunk.icd_version==9)] for chunk in iter_csv])
     else:
         data = pd.concat([chunk[data.icd_version==9] for chunk in iter_csv])
     print('Read origin')
-    output_path = Path(output_root + '/hosp/diagnoses_icd.csv')  
+    output_path = Path(out_data_root + '/hosp/diagnoses_icd.csv')  
     output_path.parent.mkdir(parents=True, exist_ok=True) 
     data.to_csv(output_path)
     print('Saved diagnoses_icd!\n')
 
-def build_labevents(hadm_ids=None, columns=None, itemid_filter=None):
+def build_labevents(subject_ids=None, hadm_ids=None, columns=None, itemid_filter=None):
     print('Building labevents...')
-    iter_csv = pd.read_csv(origin_root + '/hosp/labevents.csv', header=0, index_col=[0], iterator=True, chunksize=10000, usecols=columns)
-    if hadm_ids and itemid_filter:
-        data = pd.concat([chunk[(chunk.hadm_id.isin(hadm_ids)) & (chunk.itemid.isin(itemid_filter))] for chunk in iter_csv])
-    elif hadm_ids:
+    iter_csv = pd.read_csv(in_data_root + '/hosp/labevents.csv', header=0, index_col=[0], iterator=True, chunksize=10000, usecols=columns)
+    if hadm_ids.any() and itemid_filter:
+        data = pd.concat([chunk[((chunk.subject_id.isin(subject_ids)) | (chunk.hadm_id.isin(hadm_ids))) & (chunk.itemid.isin(itemid_filter))] for chunk in iter_csv])
+    elif hadm_ids.any():
         data = pd.concat([chunk[chunk.hadm_id.isin(hadm_ids)] for chunk in iter_csv])
     elif itemid_filter:
         data = pd.concat([chunk[chunk.itemid.isin(itemid_filter)] for chunk in iter_csv])
     else:
         data = pd.concat([chunk for chunk in iter_csv])
     print('Read origin')
-    output_path = Path(output_root + '/hosp/labevents.csv')  
+    output_path = Path(out_data_root + '/hosp/labevents.csv')  
     output_path.parent.mkdir(parents=True, exist_ok=True) 
     data.to_csv(output_path)
     print('Saved labevents!\n')
-    return data.index.tolist()
+    return data.index.unique()
 
-def build_services(hadm_ids=None, columns=None):
+def build_services(subject_ids=None, hadm_ids=None, columns=None):
     print('Building services...')
-    iter_csv = pd.read_csv(origin_root + '/hosp/services.csv', header=0, index_col=[0], iterator=True, chunksize=1000, usecols=columns)
-    if hadm_ids:
-        data = pd.concat([chunk[chunk.hadm_id.isin(hadm_ids)] for chunk in iter_csv])
+    iter_csv = pd.read_csv(in_data_root + '/hosp/services.csv', header=0, index_col=[0], iterator=True, chunksize=1000, usecols=columns)
+    if hadm_ids.any():
+        data = pd.concat([chunk[(chunk.index.isin(subject_ids)) | (chunk.hadm_id.isin(hadm_ids))] for chunk in iter_csv])
     else:
         data = pd.concat([chunk for chunk in iter_csv])
     print('Read origin')
-    output_path = Path(output_root + '/hosp/services.csv')  
+    output_path = Path(out_data_root + '/hosp/services.csv')  
     output_path.parent.mkdir(parents=True, exist_ok=True) 
     data.to_csv(output_path)
     print('Saved services!\n')
 
-def build_icustays(hadm_ids=None, columns=None):
+def build_icustays(subject_ids=None, hadm_ids=None, columns=None):
     print('Building icustays...')
-    iter_csv = pd.read_csv(origin_root + '/icu/icustays.csv', header=0, index_col=[0], iterator=True, chunksize=1000, usecols=columns)
-    if hadm_ids:
-        data = pd.concat([chunk[chunk.hadm_id.isin(hadm_ids)] for chunk in iter_csv])
+    iter_csv = pd.read_csv(in_data_root + '/icu/icustays.csv', header=0, index_col=[0], iterator=True, chunksize=1000, usecols=columns)
+    if hadm_ids.any():
+        data = pd.concat([chunk[(chunk.index.isin(subject_ids)) | (chunk.hadm_id.isin(hadm_ids))] for chunk in iter_csv])
     else:
         data = pd.concat([chunk for chunk in iter_csv])
     print('Read origin')
-    output_path = Path(output_root + '/icu/icustays.csv')  
+    output_path = Path(out_data_root + '/icu/icustays.csv')  
     output_path.parent.mkdir(parents=True, exist_ok=True) 
     data.to_csv(output_path)
     print('Saved icustays!\n')
-    return data['stay_id'].tolist()
+    return data['stay_id'].unique()
 
-def build_chartevents(stay_ids=None, columns=None, itemid_filter=None):
+def build_chartevents(subject_ids=None, hadm_ids=None, stay_ids=None, columns=None, itemid_filter=None):
     print('Building chartevents...')
-    iter_csv = pd.read_csv(origin_root + '/icu/chartevents.csv', header=0, index_col=[0], iterator=True, chunksize=10000, usecols=columns)
-    if stay_ids and itemid_filter:
-        data = pd.concat([chunk[(chunk.stay_id.isin(stay_ids)) & (chunk.itemid.isin(itemid_filter))] for chunk in iter_csv])
-    elif stay_ids:
+    iter_csv = pd.read_csv(in_data_root + '/icu/chartevents.csv', header=0, index_col=[0], iterator=True, chunksize=10000, usecols=columns)
+    if stay_ids.any() and itemid_filter:
+        data = pd.concat([chunk[((chunk.index.isin(subject_ids)) | (chunk.hadm_id.isin(hadm_ids)) | (chunk.stay_id.isin(stay_ids))) & (chunk.itemid.isin(itemid_filter))] for chunk in iter_csv])
+    elif stay_ids.any():
         data = pd.concat([chunk[chunk.stay_id.isin(stay_ids)] for chunk in iter_csv])
     elif itemid_filter:
         data = pd.concat([chunk[chunk.itemid.isin(itemid_filter)] for chunk in iter_csv])
     else:
         data = pd.concat([chunk for chunk in iter_csv])
     print('Read origin')
-    output_path = Path(output_root + '/icu/chartevents.csv')  
+    output_path = Path(out_data_root + '/icu/chartevents.csv')  
     output_path.parent.mkdir(parents=True, exist_ok=True) 
     data.to_csv(output_path)
     print('Saved chartevents!\n')
 
-def build_outputevents(stay_ids=None, columns=None, itemid_filter=None):
+def build_outputevents(subject_ids=None, hadm_ids=None, stay_ids=None, columns=None, itemid_filter=None):
     print('Building outputevents...')
-    iter_csv = pd.read_csv(origin_root + '/icu/outputevents.csv', header=0, index_col=[0], iterator=True, chunksize=10000, usecols=columns)
-    if stay_ids and itemid_filter:
-        data = pd.concat([chunk[(chunk.stay_id.isin(stay_ids)) & (chunk.itemid.isin(itemid_filter))] for chunk in iter_csv])
-    elif stay_ids:
+    iter_csv = pd.read_csv(in_data_root + '/icu/outputevents.csv', header=0, index_col=[0], iterator=True, chunksize=10000, usecols=columns)
+    if stay_ids.any() and itemid_filter:
+        data = pd.concat([chunk[((chunk.index.isin(subject_ids)) | (chunk.hadm_id.isin(hadm_ids)) | (chunk.stay_id.isin(stay_ids))) & (chunk.itemid.isin(itemid_filter))] for chunk in iter_csv])
+    elif stay_ids.any():
         data = pd.concat([chunk[chunk.stay_id.isin(stay_ids)] for chunk in iter_csv])
     elif itemid_filter:
         data = pd.concat([chunk[chunk.itemid.isin(itemid_filter)] for chunk in iter_csv])
     else:
         data = pd.concat([chunk for chunk in iter_csv])
     print('Read origin')
-    output_path = Path(output_root + '/icu/outputevents.csv')  
+    output_path = Path(out_data_root + '/icu/outputevents.csv')  
     output_path.parent.mkdir(parents=True, exist_ok=True) 
     data.to_csv(output_path)
     print('Saved outputevents!\n')
