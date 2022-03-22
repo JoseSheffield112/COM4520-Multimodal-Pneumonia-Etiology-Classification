@@ -1,18 +1,7 @@
 from os import listdir
 from importlib import import_module
 import numpy as np
-import config
-
-save_npz = True
-low_memory = False
-in_data_root = 'datasets/mimic-iv/mimic-iv-1.0'
-out_data_root = 'datasets/mimic-iv/mimic-iv-new'
-origin_root = 'datasets/mimic-iv/mimic-iv-full-cohort'
-feature_script_root = 'scripts/features'
-intermediate_root = 'intermediates/'
-feature_root = 'features'
-output_root = 'output'
-
+from config import *
 
 features = {}
 
