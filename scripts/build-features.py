@@ -11,14 +11,13 @@ for filename in listdir(feature_script_root):
         file = filename[:-3] # No extension
         print('Running ', file)
         try:
-            feature = import_module('.' + file, 'features').main()
+            if save_npz and not low_memory:
+                features[file] = import_module('.' + file, 'features').main()
+            else:
+                import_module('.' + file, 'features').main()
+                features[file] = None
         except Exception as e:
             failed[file] = e
-
-        if save_npz and not low_memory:
-            features[file] = feature
-        else:
-            features[file] = None
 
 if save_npz:
     print('Saving compiled output...')
