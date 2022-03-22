@@ -108,7 +108,7 @@ def extract_pao2fio2ratio(cur,conn):
 
 def getConnection(db='mimiciv'):
     '''
-    Returns a connection to a specified database by using a configuration file whose path is specified in the const python module.
+    Returns a connection to a specified database by using a configuration file whose path is specified in the scripts.config python module.
     '''
     with open(const.connection_json_root, 'r') as f:
         conn_params = json.load(f)[db]
