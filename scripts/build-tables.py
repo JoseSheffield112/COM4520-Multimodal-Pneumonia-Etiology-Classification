@@ -1,10 +1,7 @@
 import numpy as np
 import pandas as pd
 from pathlib import Path
-
-origin_root = 'datasets/mimic-iv/mimic-iv-1.0'
-output_root = 'datasets/mimic-iv/mimic-iv-full-cohort'
-cohort_root = 'cohorts/data_oscar_cohort'
+from config import *
 
 def main():
     build_tables('full', cohort=True)
