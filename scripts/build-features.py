@@ -4,12 +4,17 @@ import numpy as np
 from config import *
 
 features = {}
+failed = {}
 
 for filename in listdir(feature_script_root):
     if filename.endswith('.py'):
         file = filename[:-3] # No extension
         print('Running ', file)
-        feature = import_module('.' + file, 'features').main()
+        try:
+            feature = import_module('.' + file, 'features').main()
+        except Exception as e:
+            failed[file] = e
+
         if save_npz and not low_memory:
             features[file] = feature
         else:
@@ -28,3 +33,7 @@ if save_npz:
     print('Saved compiled output!\n')
 
 print('Features:', ', '.join(features.keys()))
+if failed:
+    print('The following features failed:')
+    for key in failed:
+        print(key, failed[key])
