@@ -43,6 +43,7 @@ MIMIC-iv pre-processing code
 | Heartrate | The patients' hourly heartrate over 24h | 0 < x < 300 | 24
 | MSCancer | Whether the patient has metastatic cancer | x ∈ {0, 1} | 1 |
 | Temperature | The patients' hourly temperature (°C) over 24h | 25 < x < 50 | 24
+| Whitebloodcells | The patient's white blood cell count | 0 < x < 1000 | ?
 
 # Using this repository with low memory
 The dataset we are working with is quite large so you will have trouble processing it if you are working on a machine with low memory. There are several ways we have allowed the code to be run with lower memory usage, but on some machines it will still be necessary to use a [reduced or stripped](#reduce-or-strip-an-existing-dataset) version of MIMIC-iv rather than using the original. A [cohort](#generating-a-cohort-dataset-from-the-complete-dataset-and-a-cohort) is an example of a reduced dataset.
