@@ -24,7 +24,9 @@ def main():
     cur = conn.cursor()
     
     create_bg_table(cur,conn)
-    extract_pao2fio2ratio(cur,conn)
+    pao2fio2Dict = extract_pao2fio2ratio(cur,conn)
+    return pao2fio2Dict
+
 
 
 def create_bg_table(cur,conn):
@@ -101,6 +103,8 @@ def extract_pao2fio2ratio(cur,conn):
     f = open(Path(const.feature_root + '/pao2fio2ratio.pyc'), mode='wb')
     pickle.dump(filteredDataFramesDict, file=f)
     f.close()
+
+    return filteredDataFramesDict
 
 def getConnection(db='mimiciv'):
     '''
