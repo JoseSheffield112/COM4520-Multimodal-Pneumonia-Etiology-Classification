@@ -1,7 +1,11 @@
+import os
+import sys
+sys.path.append(os.getcwd()) # Append current directory to sys.path. Makes it easier to run this script individually from the terminal.
+
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from config import *
+from scripts.config import *
 
 def main():
     build_tables('full', cohort=True)
