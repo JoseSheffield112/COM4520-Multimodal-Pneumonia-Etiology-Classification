@@ -59,7 +59,17 @@ if __name__=='__main__':
 
     features = preprocess(features)
 
-    output_path = Path(output_root + '/features.csv')  
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    print(features)
-    features.to_csv(output_path)
+    print('Saving output csv...')
+    csv_path = Path(output_root + '/features.csv')  
+    csv_path.parent.mkdir(parents=True, exist_ok=True)
+    features.to_csv(csv_path)
+    print('Saved output csv!')
+
+    if save_npz:
+        print('Saving output im.pk...')
+        impk = features.to_numpy()
+        impk_path = Path(output_root + '/im.pk')  
+        impk_path.parent.mkdir(parents=True, exist_ok=True)
+        features.to_csv(csv_path)
+        np.save(output_root + '/im.pk', impk)
+        print('Saved output im.pk!')
