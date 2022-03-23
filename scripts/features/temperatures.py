@@ -7,6 +7,8 @@ import pandas as pd
 from pathlib import Path
 from scripts.config import *
 
+MIN_READINGS_TO_KEEP = 5
+
 itemid_filter = [676, 678, 223761, 223762]
 
 def main():
@@ -49,7 +51,7 @@ def process_admission(chunk):
     x = chunk.hour.values.astype(float)
     y = chunk.value.values.astype(float)
 
-    if x.any():
+    if len(x) > MIN_READINGS_TO_KEEP:
         first['temperatures'] = [np.interp(range(24), x, y).round(1)]
     else:
         first['temperatures'] = [np.nan]
