@@ -27,10 +27,22 @@ def main():
     data.to_csv(intermediate_path)
     print('Saved whitebloodcells!')
     print('Generating npy...')
-    wbc = np.empty((0), float)
+    wbc = np.empty((0,2), float)
     print('Patient count: ', len(set(data.index.values)))
     data = data.drop(columns=['hour'])
-    wbc = data.values.astype(int)
+    # making array here
+    for subject in set(data.index.values):
+        # loading each value in respective variable
+        arr = np.empty(2, float)
+        chunk = [data[data.index == subject]]
+        admission = chunk[0].hadm_id.iloc[0]
+        mean = chunk[0].value.iloc[0]
+        minimum = chunk[0].Minimum.iloc[0]
+        maximum = chunk[0].Maximum.iloc[0]
+        # storing them in temp array
+        arr = [admission, [minimum,maximum,mean]]
+        # adding that to wbc
+        wbc = np.append(wbc, np.array([arr]), axis=0)
     print('Saving white blood cell values...')
     np.save(feature_root + '/wbc.npy', wbc)
     print('Shape: ', wbc.shape)
@@ -42,7 +54,7 @@ def process_patient(chunk):
     first = chunk.head(1)
     chunk = chunk[chunk.hadm_id == first.hadm_id.iloc[0]]
     chunk['hour'] = (((pd.to_datetime(chunk.charttime) - pd.to_datetime(first.charttime)).dt.total_seconds()) / 3600).round(0).astype(int)
-    chunk = chunk.drop(columns=['charttime']) # TODO - need to remove the subject ID & hour so we only keep WBC for each hadm
+    chunk = chunk.drop(columns=['charttime'])
     chunk = chunk[~chunk.hour.duplicated(keep='first')]
     chunk = chunk[(chunk.hour < 24) & (chunk.value.astype(float) > 0) & (chunk.value.astype(float) < 1000)] # in SQL anything above 11 is abnormal - there's actually a patient with 281!
     ##
@@ -59,8 +71,8 @@ def process_patient(chunk):
             sum=sum+value
         mean = sum/values
         chunk.value.iloc[0] = mean
-    chunk['min'] = min
-    chunk['max'] = max
+    chunk['Minimum'] = min
+    chunk['Maximum'] = max
     chunk = chunk.head(1) # dropping other rows
     return chunk
 
