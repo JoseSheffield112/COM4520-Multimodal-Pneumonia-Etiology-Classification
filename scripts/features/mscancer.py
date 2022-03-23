@@ -29,18 +29,17 @@ def main():
 
     print('Admission count: ', len(set(data.index.values)))
     print('Shape: ', data.shape)
-    print('Saved mscancer!\n')
     return data
 
 def process_patient(chunk):
-    chunk['has_mscancer'] = chunk.icd_code.isin(icd_filter).astype(int)
+    chunk['mscancer'] = chunk.icd_code.isin(icd_filter).astype(int)
     chunk = chunk.drop(columns=['subject_id', 'icd_code'])
-    chunk = chunk.drop_duplicates(['hadm_id', 'has_mscancer'])
+    chunk = chunk.drop_duplicates(['hadm_id', 'mscancer'])
     if chunk.values.any():
-        id = chunk.has_mscancer.idxmax()
+        id = chunk.mscancer.idxmax()
         before = chunk.iloc[:id-1, :]
         after = chunk.iloc[id-1:, :]
-        after = after.assign(has_mscancer=1)
+        after = after.assign(mscancer=1)
         chunk = pd.concat([before, after])
 
     chunk = chunk.set_index('hadm_id')
@@ -48,6 +47,6 @@ def process_patient(chunk):
     return chunk
 
 if __name__ == '__main__':
-    print('Saving temperatures feature...')
+    print('Saving mscancer feature...')
     main().to_pickle(feature_root + '/mscancer.pickle')
-    print('Saved temperatures!\n')
+    print('Saved mscancer!\n')

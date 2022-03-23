@@ -38,6 +38,7 @@ def process_admission(chunk):
 
     chunk['hour'] = (((pd.to_datetime(chunk.charttime) - pd.to_datetime(first.charttime)).dt.total_seconds()) / 3600)
     chunk = chunk.drop(columns='charttime')
+    first = first.drop(columns='charttime')
     chunk = chunk[~chunk.hour.duplicated(keep='first')]
 
     chunk = chunk[(chunk.hour < 24) & (chunk.value.astype(float) > 0) & (chunk.value.astype(float) < 300)]
@@ -48,7 +49,7 @@ def process_admission(chunk):
     if len(x) >= MIN_READINGS_TO_KEEP:
         first['heartrates'] = [np.interp(range(24), x, y).round(1)]
     else:
-        first['heartrates'] = [np.nan]
+        first['heartrates'] = np.nan
     return first
 
 if __name__ == '__main__':
