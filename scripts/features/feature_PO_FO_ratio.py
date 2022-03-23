@@ -96,15 +96,16 @@ def extract_pao2fio2ratio(cur,conn):
         filteredDataFrames[idx] = admissionData.astype({'hadm_id': 'int32'})
 
 
-    #Get a dictionary with hadm_id as the key and a (24,1) numpy array containing values for the first 24 hours after the first reading of this admission
-    filteredDataFramesDict = {admissionData.iloc[0]['hadm_id']:convertAdmisionDataframeToNumpyArray(admissionData) for admissionData in filteredDataFrames}
+    # Shape the output to be a dataframe with hadm_id as the index and the (24,1) numpy array as its single value.
+    listOfAdmIdArrayTuples = [(dataFrame.iloc[0].hadm_id,convertAdmisionDataframeToNumpyArray(dataFrame)) for dataFrame in filteredDataFrames]
+    outputDataframe = pd.DataFrame(listOfAdmIdArrayTuples, columns=['hadm_id', 'value']).set_index('hadm_id')
 
     #Serialize the dictionary
     f = open(Path(const.feature_root + '/pao2fio2ratio.pyc'), mode='wb')
-    pickle.dump(filteredDataFramesDict, file=f)
+    pickle.dump(outputDataframe, file=f)
     f.close()
 
-    return filteredDataFramesDict
+    return outputDataframe
 
 def getConnection(db='mimiciv'):
     '''
@@ -196,7 +197,7 @@ def processAdmissions(admissions):
     
     Finally, each admission dataframe is filled to have 24 values, by linearly interpolating between gaps in readings. 
     '''
-    MIN_READINGS_PER_ADMISSION = 5
+    MIN_READINGS_PER_ADMISSION = 3
     for idx,admissionData in enumerate(admissions):
         #Associate an hour to each reading
         admissionData.sort_values(by=['charttime'], ascending = True, inplace=True)
