@@ -40,14 +40,19 @@ def process_patient(chunk):
     chunk = chunk[(chunk.hour < 24) & (chunk.value.astype(float) > 0) & (chunk.value.astype(float) < 100)] # in SQL anything above 11 is abnormal
     # TODO
     # get mean of values
-    values = int((chunk.size)/3)#gives me number of cols, so divided by 3 since theres still subject id, value, hour
-    if(values>1):
-        sum=0
-        for i in range(0,values):
-            sum=sum+chunk.value.iloc[i]#need to take value of iloc here not array
+    values = (chunk.size)/3#gives me number of cols, so divided by 3 since theres still subject id, value, hour
+    print(type(values)) #----XXXXX# I WANT THIS TO BE FLOAT
+    if(values>1): # ----XXXXX   MIGHT NEED TO CHANGE THIS TO 1.0  # If more than 1 record
+        sum=0.0
+        for i in range(0,int(values)):
+            #print(type(chunk.value.iloc[i].astype(int)))
+            sum=sum+(chunk.value.iloc[i].astype(float))#need to take value of iloc here not array
         print(sum)
-        print(sum.values)
-        chunk = chunk.head(1)
+        mean = sum/values
+        print(mean)
+        chunk.value.iloc[0] = mean
+    #     print(sum.values)
+    #     chunk = chunk.head(1)
     # Don't we also need to drop hour
     print(chunk)
     return chunk
