@@ -33,26 +33,29 @@ def process_admission(chunk):
     first = chunk.head(1)
     first = first.drop(columns=['itemid', 'value'])
 
-    chunk['hour'] = (((pd.to_datetime(chunk.charttime) - pd.to_datetime(first.charttime)).dt.total_seconds()) / 3600).round(0).astype(int)
+    chunk['hour'] = ((pd.to_datetime(chunk.charttime) - pd.to_datetime(first.charttime)).dt.total_seconds()) / 3600
     chunk = chunk.drop(columns='charttime')
     first = first.drop(columns='charttime')
     chunk = chunk[~chunk.hour.duplicated(keep='first')]
 
     centigrades = chunk[chunk.itemid.isin([676, 223762])]
     fahrenheits = chunk[chunk.itemid.isin([678, 223761])]
-    fahrenheits.value = ((fahrenheits.value.astype(float) - 32) * 5 / 9).round(1)
+    fahrenheits.value = ((fahrenheits.value.astype(float) - 32) * 5 / 9)#.round(1)
     chunk = pd.concat([centigrades, fahrenheits])
     chunk = chunk.drop(columns='itemid')
     
     chunk = chunk[(chunk.hour < 24) & (chunk.value.astype(float) > 25) & (chunk.value.astype(float) < 50)]
     
-    temperatures = np.empty(24, float)
-    for _, row in chunk.iterrows():
-        temperatures[int(row.hour)] = row.value
-    first['temperatures'] = [temperatures]
+    x = chunk.hour.values.astype(np.float)
+    y = chunk.value.values.astype(np.float)
+
+    if x.any():
+        first['temperatures'] = [np.interp(range(24), x, y).round(1)]
+    else:
+        first['temperatures'] = [np.nan]
     return first
 
 if __name__ == '__main__':
     print('Saving temperatures feature...')
-    main().to_pickle(feature_root + '/temperatures.npy')
+    main().to_pickle(feature_root + '/temperatures.pickle')
     print('Saved temperatures!\n')
