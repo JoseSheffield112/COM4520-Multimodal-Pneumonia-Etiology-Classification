@@ -55,7 +55,7 @@ if __name__=='__main__':
     features = [feature for feature in get_individual_features() if type(feature) is type(pd.DataFrame())]
 
     features = pd.concat(features, axis=1)
-    features = features.dropna(thresh=2) # Keep records with {thresh} non-NaN columns
+    features = features.dropna(thresh=2) # Keep records with {thresh} non-NaN columns, not including hadm_id
 
     features = preprocess(features)
 

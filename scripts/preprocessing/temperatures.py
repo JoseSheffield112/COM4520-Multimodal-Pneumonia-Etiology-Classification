@@ -1,4 +1,3 @@
-from msilib.schema import Error
 import numpy as np
 
 def main(arr):
