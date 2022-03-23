@@ -27,7 +27,7 @@ def main():
         data.to_csv(intermediate_path)
         print('Saved intermediate mscancer!')
 
-    print('Patient count: ', len(set(data.index.values)))
+    print('Admission count: ', len(set(data.index.values)))
     print('Shape: ', data.shape)
     print('Saved mscancer!\n')
     return data
