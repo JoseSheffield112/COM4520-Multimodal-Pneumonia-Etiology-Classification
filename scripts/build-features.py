@@ -39,7 +39,7 @@ def get_individual_features():
     return list(features.values())
 
 if __name__=='__main__':
-    features = get_individual_features()
+    features = [feature for feature in get_individual_features() if type(feature) is type(pd.DataFrame())]
 
     features = pd.concat(features, axis=1)
     output_path = Path(output_root + '/features.csv')  
