@@ -7,7 +7,7 @@ sys.path.append(os.getcwd()) # Append current directory to sys.path. Makes it ea
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from scripts.config import *
+from config import *
 
 itemid_filter = [51300, 51301]
 
@@ -63,6 +63,6 @@ def process_admissions(chunk):
     return first
 
 if __name__ == '__main__':
-    print('Saving temperatures feature...')
-    main().to_pickle(feature_root + '/temperatures.pickle')
-    print('Saved temperatures!\n')
+    print('Saving whitebloodcells feature...')
+    main().to_pickle(feature_root + '/whitebloodcells.pickle')
+    print('Saved whitebloodcells!\n')
