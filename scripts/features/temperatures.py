@@ -31,10 +31,11 @@ def main():
 
 def process_admission(chunk):
     first = chunk.head(1)
-    first = first.drop(columns='value')
+    first = first.drop(columns=['itemid', 'value'])
 
     chunk['hour'] = (((pd.to_datetime(chunk.charttime) - pd.to_datetime(first.charttime)).dt.total_seconds()) / 3600).round(0).astype(int)
     chunk = chunk.drop(columns='charttime')
+    first = first.drop(columns='charttime')
     chunk = chunk[~chunk.hour.duplicated(keep='first')]
 
     centigrades = chunk[chunk.itemid.isin([676, 223762])]
@@ -48,7 +49,6 @@ def process_admission(chunk):
     temperatures = np.empty(24, float)
     for _, row in chunk.iterrows():
         temperatures[int(row.hour)] = row.value
-    first = first.drop(columns='charttime')
     first['temperatures'] = [temperatures]
     return first
 
