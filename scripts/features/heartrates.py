@@ -34,16 +34,19 @@ def process_admission(chunk):
     first = chunk.head(1)
     first = first.drop(columns='value')
 
-    chunk['hour'] = (((pd.to_datetime(chunk.charttime) - pd.to_datetime(first.charttime)).dt.total_seconds()) / 3600).round(0).astype(int)
+    chunk['hour'] = (((pd.to_datetime(chunk.charttime) - pd.to_datetime(first.charttime)).dt.total_seconds()) / 3600)
     chunk = chunk.drop(columns='charttime')
     chunk = chunk[~chunk.hour.duplicated(keep='first')]
+
     chunk = chunk[(chunk.hour < 24) & (chunk.value.astype(float) > 0) & (chunk.value.astype(float) < 300)]
     
-    heartrates = np.empty(24, float)
-    for _, row in chunk.iterrows():
-        heartrates[int(row.hour)] = row.value
-    first = first.drop(columns='charttime')
-    first['heartrates'] = [heartrates]
+    x = chunk.hour.values.astype(float)
+    y = chunk.value.values.astype(float)
+
+    if x.any():
+        first['heartrates'] = [np.interp(range(24), x, y).round(1)]
+    else:
+        first['heartrates'] = [np.nan]
     return first
 
 if __name__ == '__main__':

@@ -40,14 +40,14 @@ def process_admission(chunk):
 
     centigrades = chunk[chunk.itemid.isin([676, 223762])]
     fahrenheits = chunk[chunk.itemid.isin([678, 223761])]
-    fahrenheits.value = ((fahrenheits.value.astype(float) - 32) * 5 / 9)#.round(1)
+    fahrenheits.value = ((fahrenheits.value.astype(float) - 32) * 5 / 9)
     chunk = pd.concat([centigrades, fahrenheits])
     chunk = chunk.drop(columns='itemid')
     
     chunk = chunk[(chunk.hour < 24) & (chunk.value.astype(float) > 25) & (chunk.value.astype(float) < 50)]
     
-    x = chunk.hour.values.astype(np.float)
-    y = chunk.value.values.astype(np.float)
+    x = chunk.hour.values.astype(float)
+    y = chunk.value.values.astype(float)
 
     if x.any():
         first['temperatures'] = [np.interp(range(24), x, y).round(1)]
