@@ -27,7 +27,6 @@ def main():
         print('Saved intermediate heartrates!')
 
     print('Admission count: ', len(set(data.index.values)))
-    data.to_pickle(feature_root + '/heartrate.pickle')
     print('Shape: ', data.shape)
     return data
 
