@@ -18,7 +18,7 @@ def main():
     data = pd.concat([chunk[chunk.itemid.isin(itemid_filter)] for chunk in iter_csv])
 
     print('Processing whitebloodcells...')
-    data = pd.concat([process_admissions(chunk) for chunk in [data[data.index == admission] for admission in data.index.unique()]])
+    data = pd.concat([process_admissions(chunk) for chunk in [data[data.index == admission] for admission in data.index.unique()] if type(chunk) is not type(None)])
 
     ## Intermediate results
     if save_intermediates:
@@ -44,25 +44,26 @@ def process_admissions(chunk):
     
     ## Calculating min/max/mean
     values = (chunk.size)/3 # gives me (cols*rows), so divided by 3 since theres still subject id, value, hour
-    maximum = minimum = mean = chunk.value.iloc[0].astype(float)
-    if(values>1): #if more than 1 record
-        sum=0.0
-        for i in range(0,int(values)): # we iterate over them and get mean
-            value = chunk.value.iloc[i].astype(float)
-            if(value<minimum):
-                minimum = value
-            elif(value>maximum):
-                maximum = value
-            sum=sum+value
-        mean = sum/values
-        chunk.value.iloc[0] = mean
+    if values > 0:
+        maximum = minimum = mean = chunk.value.iloc[0]#.astype(float)
+        if(values>1): #if more than 1 record
+            sum=0.0
+            for i in range(0,int(values)): # we iterate over them and get mean
+                value = chunk.value.iloc[i]#.astype(float)
+                if(float(value)<float(minimum)):
+                    minimum = value
+                elif(float(value)>float(maximum)):
+                    maximum = value
+                sum=sum+float(value)
+            mean = sum/values
+            chunk.value.iloc[0] = mean
 
-    ## Final array
-    temp = np.array([minimum, maximum, mean])
-    first['wbcount'] = [temp]
-    return first
+        ## Final array
+        temp = np.array([minimum, maximum, mean])
+        first['wbcount'] = [temp]
+        return first
 
 if __name__ == '__main__':
-    print('Saving temperatures feature...')
-    main().to_pickle(feature_root + '/temperatures.pickle')
-    print('Saved temperatures!\n')
+    print('Saving whitebloodcells feature...')
+    main().to_pickle(feature_root + '/whitebloodcells.pickle')
+    print('Saved whitebloodcells!\n')
