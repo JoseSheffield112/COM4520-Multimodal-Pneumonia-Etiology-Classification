@@ -1,7 +1,3 @@
-    ## TODO list:
-# Need to drop everything else but the values
-# Need to tie values to a hadm_id
-
 ## @NOTICE@ | @NOTICE@ | @NOTICE@ | @NOTICE@ | @NOTICE@ | @NOTICE@ | @NOTICE@ | @NOTICE@ | @NOTICE@ | @NOTICE@ | @NOTICE@ | @NOTICE@ ##
 ## This script cannot handled missing hadm_id entries
 import numpy as np
@@ -21,32 +17,31 @@ def main():
     data = data.drop(columns=['itemid'])
     data = pd.concat([process_patient(chunk) for chunk in [data[data.index == subject] for subject in data.index.unique()]])
 
+    ## Intermediate results
     print('Saving...')
     intermediate_path = Path(intermediate_root + '/whitebloodcells.csv')  
     intermediate_path.parent.mkdir(parents=True, exist_ok=True) 
     data.to_csv(intermediate_path)
     print('Saved whitebloodcells!')
+
+    ## main code
     print('Generating npy...')
-    wbc = np.empty((0,2), float)
     print('Patient count: ', len(set(data.index.values)))
     data = data.drop(columns=['hour'])
     # making array here
+    
+    wbc = np.empty((0,2), float)
     for subject in set(data.index.values):
-        # loading each value in respective variable
-        arr = np.empty(2, float)
+        temp = np.empty((2), float)
         chunk = [data[data.index == subject]]
+        #######################################
         admission = chunk[0].hadm_id.iloc[0]
+        print(admission)
+        temp[0] = admission
+        # loading each value in respective variable
         mean = chunk[0].value.iloc[0]
         minimum = chunk[0].Minimum.iloc[0]
         maximum = chunk[0].Maximum.iloc[0]
-        # storing them in temp array
-        arr = [admission, [minimum,maximum,mean]]
-        # adding that to wbc
-        wbc = np.append(wbc, np.array([arr]), axis=0)
-    print('Saving white blood cell values...')
-    np.save(feature_root + '/wbc.npy', wbc)
-    print('Shape: ', wbc.shape)
-    print('Saved aids!\n')
     return wbc
 
 def process_patient(chunk):
