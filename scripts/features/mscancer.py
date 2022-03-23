@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from config import *
+from scripts.config import *
 
 icd_filter = [i for i in range(1960, 1992)]
 icd_filter += [i for i in range(20970, 20976)]

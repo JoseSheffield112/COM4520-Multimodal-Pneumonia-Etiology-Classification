@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from config import *
+from scripts.config import *
 
 icd_filter = ['042', '043', '044', '0449']
 

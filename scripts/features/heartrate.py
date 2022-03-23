@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from config import *
+from scripts.config import *
 
 itemid_filter = [211, 220045]
 
