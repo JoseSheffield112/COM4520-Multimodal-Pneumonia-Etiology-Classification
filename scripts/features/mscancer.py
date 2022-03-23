@@ -1,42 +1,49 @@
+import os
+import sys
+sys.path.append(os.getcwd()) # Append current directory to sys.path. Makes it easier to run this script individually from the terminal.
+
 import numpy as np
 import pandas as pd
 from pathlib import Path
 from scripts.config import *
 
-icd_filter = [i for i in range(1960, 1992)]
-icd_filter += [i for i in range(20970, 20976)]
-icd_filter += [20979, 78951]
+icd_filter = [str(i) for i in range(1960, 1992)]
+icd_filter += [str(i) for i in range(20970, 20976)]
+icd_filter += ['20979', '78951']
 
 def main():
     print('Reading diagnoses_icd...')
-    columns = ['subject_id', 'icd_code']
-    iter_csv = pd.read_csv(origin_root + '/hosp/diagnoses_icd.csv', header=0, index_col=[0], iterator=True, chunksize=1000, usecols=columns)
+    columns = ['subject_id', 'hadm_id', 'icd_code']
+    iter_csv = pd.read_csv(origin_root + '/hosp/diagnoses_icd.csv', header=0, iterator=True, chunksize=1000, usecols=columns)
     data = pd.concat([chunk for chunk in iter_csv])
 
-    print('Processing mscancerresults...')
-    data = pd.concat([process_patient(chunk) for chunk in [data[data.index == subject] for subject in data.index.unique()]])
+    print('Processing mscancer...')
+    data = pd.concat([process_patient(chunk) for chunk in [data[data.subject_id == subject] for subject in data.subject_id.unique()]])
 
-    print('Saving...')
-    intermediate_path = Path(intermediate_root + '/mscancerresults.csv')  
-    intermediate_path.parent.mkdir(parents=True, exist_ok=True) 
-    data.to_csv(intermediate_path)
-    print('Saved mscancerresults!')
-    print('Generating npy...')
-    mscancer = np.empty((0), float)
+    if save_intermediates:
+        print('Saving intermediate...')
+        intermediate_path = Path(intermediate_root + '/mscancer.csv')  
+        intermediate_path.parent.mkdir(parents=True, exist_ok=True) 
+        data.to_csv(intermediate_path)
+        print('Saved intermediate mscancer!')
+
     print('Patient count: ', len(set(data.index.values)))
-    mscancer = data.values.astype(int)
-    print('Saving metastatic cancer feature...')
-    np.save(feature_root + '/mscancer.npy', mscancer)
-    print('Shape: ', mscancer.shape)
+    print('Shape: ', data.shape)
     print('Saved mscancer!\n')
-    return mscancer
+    return data
 
 def process_patient(chunk):
-    chunk['has_mscancer'] = chunk.isin(icd_filter)
-    chunk = chunk.drop(columns='icd_code')
-    chunk = chunk[~chunk.has_mscancer.duplicated(keep='first')]
-    if True in chunk.values:
-        chunk = chunk[chunk.has_mscancer == True]
+    chunk['has_mscancer'] = chunk.icd_code.isin(icd_filter).astype(int)
+    chunk = chunk.drop(columns=['subject_id', 'icd_code'])
+    chunk = chunk.drop_duplicates(['hadm_id', 'has_mscancer'])
+    if chunk.values.any():
+        id = chunk.has_mscancer.idxmax()
+        before = chunk.iloc[:id-1, :]
+        after = chunk.iloc[id-1:, :]
+        after = after.assign(has_mscancer=1)
+        chunk = pd.concat([before, after])
+
+    chunk = chunk.set_index('hadm_id')
     return chunk
 
 if __name__ == '__main__':
