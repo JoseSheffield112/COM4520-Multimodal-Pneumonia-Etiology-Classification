@@ -44,6 +44,7 @@ def process_patient(chunk):
         chunk = pd.concat([before, after])
 
     chunk = chunk.set_index('hadm_id')
+    chunk = chunk[~chunk.index.duplicated(keep='last')] # Sometimes an admission will have 0 then 1 if there was another diagnosis prior to metastatic cancer
     return chunk
 
 if __name__ == '__main__':
