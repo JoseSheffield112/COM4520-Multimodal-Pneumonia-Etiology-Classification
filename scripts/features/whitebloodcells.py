@@ -2,6 +2,9 @@
 # Need to drop everything else but the values
 # Need to tie values to a hadm_id
 
+
+#print("-x--x--x--x--x--x--x--x--x--x--x-")
+
 ## @NOTICE@ | @NOTICE@ | @NOTICE@ | @NOTICE@ | @NOTICE@ | @NOTICE@ | @NOTICE@ | @NOTICE@ | @NOTICE@ | @NOTICE@ | @NOTICE@ | @NOTICE@ ##
 ## This script cannot handled missing hadm_id entries
 import numpy as np
@@ -27,9 +30,24 @@ def main():
     data.to_csv(intermediate_path)
     print('Saved whitebloodcells!')
     print('Generating npy...')
-    wbc = np.empty((0), float)
+    wbc = np.empty((0,2), float)
     print('Patient count: ', len(set(data.index.values)))
-    wbc = data.values.astype(int) # need to sort out this base 10 error
+    data = data.drop(columns=['hour'])
+    # making array here
+    for subject in set(data.index.values):
+            arr = np.empty(2, float)
+            chunk = [data[data.index == subject]]
+            print("chunk:\n")
+            print(chunk)
+            print(chunk[0].value.iloc[0])
+            print(chunk[0].hadm_id.iloc[0])
+            # for row in chunk:
+            #     print("row: \n")
+            #     print(row.value.iloc[0])
+            #     print(row.hadm_id.iloc[0])
+            wbc = np.append(wbc, np.array([arr]), axis=0)
+    # final construction
+    #wbc = data.values.astype(int)
     print('Saving white blood cell values...')
     np.save(feature_root + '/wbc.npy', wbc)
     print('Shape: ', wbc.shape)
@@ -44,16 +62,14 @@ def process_patient(chunk):
     chunk = chunk.drop(columns=['charttime']) # TODO - need to remove the subject ID & hour so we only keep WBC for each hadm
     chunk = chunk[~chunk.hour.duplicated(keep='first')]
     chunk = chunk[(chunk.hour < 24) & (chunk.value.astype(float) > 0) & (chunk.value.astype(float) < 100)] # in SQL anything above 11 is abnormal
-    values = (chunk.size)/3#gives me number of cols, so divided by 3 since theres still subject id, value, hour
+    values = (chunk.size)/3 # gives me (cols*rows), so divided by 3 since theres still subject id, value, hour
     if(values>1): #if more than 1 record
         sum=0.0
-        for i in range(0,int(values)):
-            sum=sum+(chunk.value.iloc[i].astype(float))#need to take value of iloc here not array
-        print(sum)
+        for i in range(0,int(values)): # we iterate over them and get mean
+            sum=sum+(chunk.value.iloc[i].astype(float))
         mean = sum/values
-        print(mean)
         chunk.value.iloc[0] = mean
-    chunk = chunk.head(1)
+    chunk = chunk.head(1) # dropping other rows
     print(chunk)
     return chunk
 
