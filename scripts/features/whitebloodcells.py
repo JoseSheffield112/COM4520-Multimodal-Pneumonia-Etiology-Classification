@@ -1,3 +1,9 @@
+## TODO list:
+# Need to drop everything else but the values
+# Need to tie values to a hadm_id
+
+## @NOTICE@ | @NOTICE@ | @NOTICE@ | @NOTICE@ | @NOTICE@ | @NOTICE@ | @NOTICE@ | @NOTICE@ | @NOTICE@ | @NOTICE@ | @NOTICE@ | @NOTICE@ ##
+## This script cannot handled missing hadm_id entries
 import numpy as np
 import pandas as pd
 from pathlib import Path
@@ -38,22 +44,16 @@ def process_patient(chunk):
     chunk = chunk.drop(columns=['charttime']) # TODO - need to remove the subject ID & hour so we only keep WBC for each hadm
     chunk = chunk[~chunk.hour.duplicated(keep='first')]
     chunk = chunk[(chunk.hour < 24) & (chunk.value.astype(float) > 0) & (chunk.value.astype(float) < 100)] # in SQL anything above 11 is abnormal
-    # TODO
-    # get mean of values
     values = (chunk.size)/3#gives me number of cols, so divided by 3 since theres still subject id, value, hour
-    print(type(values)) #----XXXXX# I WANT THIS TO BE FLOAT
-    if(values>1): # ----XXXXX   MIGHT NEED TO CHANGE THIS TO 1.0  # If more than 1 record
+    if(values>1): #if more than 1 record
         sum=0.0
         for i in range(0,int(values)):
-            #print(type(chunk.value.iloc[i].astype(int)))
             sum=sum+(chunk.value.iloc[i].astype(float))#need to take value of iloc here not array
         print(sum)
         mean = sum/values
         print(mean)
         chunk.value.iloc[0] = mean
-    #     print(sum.values)
-    #     chunk = chunk.head(1)
-    # Don't we also need to drop hour
+    chunk = chunk.head(1)
     print(chunk)
     return chunk
 
