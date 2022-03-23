@@ -48,4 +48,6 @@ def process_patient(chunk):
     return chunk
 
 if __name__ == '__main__':
-    main()
+    print('Saving temperatures feature...')
+    main().to_pickle(feature_root + '/mscancer.pickle')
+    print('Saved temperatures!\n')
