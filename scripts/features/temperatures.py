@@ -51,7 +51,7 @@ def process_admission(chunk):
     x = chunk.hour.values.astype(float)
     y = chunk.value.values.astype(float)
 
-    if len(x) > MIN_READINGS_TO_KEEP:
+    if len(x) >= MIN_READINGS_TO_KEEP:
         first['temperatures'] = [np.interp(range(24), x, y).round(1)]
     else:
         first['temperatures'] = [np.nan]
