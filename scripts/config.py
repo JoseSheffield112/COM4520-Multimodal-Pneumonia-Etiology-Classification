@@ -5,15 +5,15 @@ save_npz = True
 low_memory = False
 save_intermediates = True
 overwrite_cache = False
-in_data_root = 'datasets/mimic-iv/mimic-iv-full-cohort-v2'
+in_data_root = 'C:/dev/darwin/datasets/mimic-iv-1.0'
 out_data_root = 'datasets/mimic-iv/mimic-iv-full-cohort-v3'
-cohort_root = 'cohorts/data_oscar_cohort'
-origin_root = 'datasets/mimic-iv/mimic-iv-full-cohort-v2'
+cohort_root = 'cohorts'
+origin_root = 'C:/dev/darwin/datasets/mimic-iv-1.0'
 feature_script_root = 'scripts/features'
 preprocessing_script_root = 'scripts/preprocessing'
 intermediate_root = 'intermediates/'
 feature_root = 'features'
-labels_root = 'cohorts/data_oscar_cohort'
+labels_root = 'cohorts'
 output_root = 'output'
 
 
