@@ -92,7 +92,6 @@ if __name__=='__main__':
 
         impk_path = Path(output_root + '/im.npz')  
         impk_path.parent.mkdir(parents=True, exist_ok=True)
-        features.to_csv(csv_path)
         np.savez(impk_path, test=test_array, train=train_array)
         print('Saved output im.npz!')
 
