@@ -57,7 +57,7 @@ def process_admission(chunk):
     chunk = chunk.groupby('hour', as_index=False)['value'].mean()
     chunk = chunk.set_index('hour')
 
-    if chunk.size >= MIN_READINGS_TO_KEEP:
+    if len(chunk) >= MIN_READINGS_TO_KEEP:
         chunk_interpolated = pd.DataFrame({ 'hour' : range(0, 24, 1)})
         chunk_interpolated = chunk_interpolated.set_index('hour')
         
