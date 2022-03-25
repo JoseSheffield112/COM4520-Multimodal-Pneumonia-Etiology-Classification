@@ -10,8 +10,10 @@ out_data_root = 'datasets/mimic-iv/mimic-iv-full-cohort-v3'
 cohort_root = 'cohorts/data_oscar_cohort'
 origin_root = 'datasets/mimic-iv/mimic-iv-full-cohort-v2'
 feature_script_root = 'scripts/features'
+preprocessing_script_root = 'scripts/preprocessing'
 intermediate_root = 'intermediates/'
 feature_root = 'features'
+labels_root = 'cohorts/data_oscar_cohort'
 output_root = 'output'
 
 
