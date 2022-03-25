@@ -1,3 +1,4 @@
+from copyreg import pickle
 import os
 import sys
 sys.path.append(os.getcwd()) # Append current directory to sys.path. Makes it easier to run this script individually from the terminal.
@@ -59,17 +60,41 @@ if __name__=='__main__':
 
     features = preprocess(features)
 
-    print('Saving output csv...')
-    csv_path = Path(output_root + '/features.csv')  
+    print('Saving data csv...')
+    csv_path = Path(output_root + '/data.csv')  
     csv_path.parent.mkdir(parents=True, exist_ok=True)
     features.to_csv(csv_path)
-    print('Saved output csv!')
+    print('Saved data csv!')
+
+    print('Creating test...')
+    test_labels = pd.read_csv(labels_root + '/test.csv', header=0, index_col=[0], usecols=['hadm_id', 'etiology'])
+    test = pd.merge(features, test_labels, left_index=True, right_index=True)
+    print('Saving test csv...')
+    csv_path = Path(output_root + '/test.csv')  
+    csv_path.parent.mkdir(parents=True, exist_ok=True)
+    test.to_csv(csv_path)
+    print('Saved test csv!')
+
+    print('Creating train...')
+    train_labels = pd.read_csv(labels_root + '/train.csv', header=0, index_col=[0], usecols=['hadm_id', 'etiology'])
+    train = pd.merge(features, train_labels, left_index=True, right_index=True)
+    print('Saving train csv...')
+    csv_path = Path(output_root + '/train.csv')  
+    csv_path.parent.mkdir(parents=True, exist_ok=True)
+    train.to_csv(csv_path)
+    print('Saved train csv!')
+
 
     if save_npz:
-        print('Saving output im.pk...')
-        impk = features.to_numpy()
-        impk_path = Path(output_root + '/im.pk')  
+        print('Saving output im.npz...')
+        test_array = test.to_numpy()
+        train_array = train.to_numpy()
+
+        impk_path = Path(output_root + '/im.npz')  
         impk_path.parent.mkdir(parents=True, exist_ok=True)
-        features.to_csv(csv_path)
-        np.save(output_root + '/im.pk', impk)
-        print('Saved output im.pk!')
+        np.savez(impk_path, test=test_array, train=train_array)
+        print('Saved output im.npz!')
+
+        impk = np.load(impk_path, allow_pickle=True)
+        print('\nFirst test', impk['test'][0], sep='\n')
+        print('\nFirst train', impk['train'][0], sep='\n')
