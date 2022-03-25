@@ -13,7 +13,7 @@ feature_script_root = 'scripts/features'
 preprocessing_script_root = 'scripts/preprocessing'
 intermediate_root = 'intermediates/'
 feature_root = 'features'
-labels_root = 'cohorts/data_oscar_cohort'
+labels_root = 'labels/data_oscar_cohort'
 output_root = 'output'
 
 
