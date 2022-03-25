@@ -60,7 +60,7 @@ def process_admissions(chunk):
 
         ## Final array
         temp = np.array([minimum, maximum, mean])
-        first['wbcount'] = [temp]
+        first['whitebloodcells'] = [temp]
         return first
 
 if __name__ == '__main__':
