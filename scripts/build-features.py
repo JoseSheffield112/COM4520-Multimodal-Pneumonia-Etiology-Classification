@@ -42,11 +42,12 @@ def get_individual_features():
 def preprocess(table):
     for column in table.columns:
         print('Preprocessing', column, end='... ')
-        try:
-            table[column] = import_module('.' + column, 'preprocessing').main(table[column].values)
-            print('success!')
-        except Exception as e:
-            print('failed:', e)
+        #try:
+       # print(table[column].values)
+        table[column] = import_module('.' + column, 'preprocessing').main(table[column].values)
+        print('success!')
+        #except Exception as e:
+         #   print('failed:', e)
     print()
     return table
             
@@ -54,8 +55,12 @@ def preprocess(table):
 if __name__=='__main__':
     features = [feature for feature in get_individual_features() if type(feature) is type(pd.DataFrame())]
 
+    
+
     features = pd.concat(features, axis=1)
-    features = features.dropna(thresh=2) # Keep records with {thresh} non-NaN columns, not including hadm_id
+
+    #features = features.dropna(thresh=2) # Keep records with {thresh} non-NaN columns, not including hadm_id
+
 
     features = preprocess(features)
 

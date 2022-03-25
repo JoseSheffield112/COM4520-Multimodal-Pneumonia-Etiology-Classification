@@ -35,7 +35,6 @@ def create_bg_table(cur,conn):
     https://github.com/MIT-LCP/mimic-code/tree/main/mimic-iv/concepts/postgres/measurement
     '''
     # Define sql functions the sql scripts depend on
-    print("Mimic code root: ",const.mimic_code_root)
     abs_path_sqlfunctions = os.path.join(const.mimic_code_root, postgresfunctions_sqlfile)
     if not os.path.exists(abs_path_sqlfunctions):
         print(abs_path_sqlfunctions + " was not found.")
@@ -98,10 +97,10 @@ def extract_pao2fio2ratio(cur,conn):
 
     # Shape the output to be a dataframe with hadm_id as the index and the (24,1) numpy array as its single value.
     listOfAdmIdArrayTuples = [(dataFrame.iloc[0].hadm_id,convertAdmisionDataframeToNumpyArray(dataFrame)) for dataFrame in filteredDataFrames]
-    outputDataframe = pd.DataFrame(listOfAdmIdArrayTuples, columns=['hadm_id', 'value']).set_index('hadm_id')
+    outputDataframe = pd.DataFrame(listOfAdmIdArrayTuples, columns=['hadm_id', 'pao2fio2ratio']).set_index('hadm_id')
 
     #Serialize the dictionary
-    f = open(Path(const.feature_root + '/pao2fio2ratio.pyc'), mode='wb')
+    f = open(Path(const.feature_root + '/pao2fio2ratio.pickle'), mode='wb')
     pickle.dump(outputDataframe, file=f)
     f.close()
 

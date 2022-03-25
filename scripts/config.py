@@ -4,7 +4,7 @@
 save_npz = True
 low_memory = False
 save_intermediates = True
-overwrite_cache = True
+overwrite_cache = False
 in_data_root = 'datasets/mimic-iv/mimic-iv-full-cohort-v2'
 out_data_root = 'datasets/mimic-iv/mimic-iv-full-cohort-v3'
 cohort_root = 'cohorts/data_oscar_cohort'
