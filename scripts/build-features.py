@@ -1,4 +1,5 @@
-from copyreg import pickle
+#from copyreg import pickle
+import pickle
 import os
 import sys
 sys.path.append(os.getcwd()) # Append current directory to sys.path. Makes it easier to run this script individually from the terminal.
@@ -110,6 +111,22 @@ if __name__=='__main__':
     train_table.to_csv(csv_path)
     print('Saved train csv!')
 
+    print('Creating valid...')
+    valid_set = pd.read_csv(labels_root + '/valid.csv', header=0, index_col=[0], usecols=['hadm_id', 'etiology'])
+    valid_table = pd.merge(features, valid_set, left_index=True, right_index=True)
+    valid_ts = format_timeseries(valid_table, ['heartrates', 'systolic_blood_pressure', 'temperatures'])
+    print('Timeseries shape:', valid_ts.shape)
+    valid_static = format_static(valid_table, ['aids', 'mscancer', 'whitebloodcells'])
+    print('Static shape:', valid_static.shape)
+    etiologies = valid_table.etiology.values
+    valid_labels = etiologies.reshape(etiologies.shape[0], 1)
+    print('Labels shape:', valid_labels.shape)
+    print('Saving valid csv...')
+    csv_path = Path(output_root + '/valid.csv')  
+    csv_path.parent.mkdir(parents=True, exist_ok=True)
+    valid_table.to_csv(csv_path)
+    print('Saved valid csv!')
+
     if save_npz:
         print('Saving output im.npz...')
         test_array = {
@@ -124,12 +141,20 @@ if __name__=='__main__':
             'labels': train_labels
         }
         print('Train shapes:', *[train_array[arr].shape for arr in train_array])
+        valid_array = {
+            'timeseries': valid_ts,
+            'static': valid_static,
+            'labels': valid_labels
+        }
+        print('Valid shapes:', *[valid_array[arr].shape for arr in valid_array])
 
         impk_path = Path(output_root + '/im.npz')  
         impk_path.parent.mkdir(parents=True, exist_ok=True)
         np.savez(impk_path, test=test_array, train=train_array)
+        pickle.dump( {'test':test_array, 'train':train_array, 'valid':valid_array}, open(output_root + '/im.pk', 'wb'))
         print('Saved output im.npz!')
 
-        impk = np.load(impk_path, allow_pickle=True)
-        print('\nFirst test', impk['test'].timeseries, sep='\n')
-        print('\nFirst train', [arr[:5] for arr in impk['train']], sep='\n')
+        impk = pickle.load(open(output_root + '/im.pk', 'rb'))
+        print('\nFirst test', *[impk['test'][key][0] for key in impk['test']], sep='\n')
+        print('\nFirst train', *[impk['train'][key][0] for key in impk['train']], sep='\n')
+        print('\nFirst valid', *[impk['valid'][key][0] for key in impk['valid']], sep='\n')
