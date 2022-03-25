@@ -6,7 +6,7 @@ def main(arr):
     n = 0
     s = np.zeros([elements,1])
     for row in arr:
-        if not (np.isnan(row.astype(float)).any()):
+        if type(row) is not type(np.nan):
             n += 1
             for i in range(0, elements):
                 s[i] += row[i].astype(float)
@@ -14,7 +14,7 @@ def main(arr):
 
     sd = np.zeros([elements,1])
     for row in arr:
-        if not (np.isnan(row.astype(float)).any()):
+        if type(row) is not type(np.nan):
             for i in range(0, elements):
                 sd[i] += (row[i].astype(float) - mean[i].astype(float))**2
 
@@ -26,12 +26,11 @@ def main(arr):
     fill = np.zeros(elements) # Seems we're imputting 0's... could use np.array([mean[0],mean[1],mean[2]])
 
     for row in arr:
-        row = row.astype(np.float)
-        if (np.isnan(row.astype(float)).any()):
+        #row = row.astype(np.float)
+        if type(row) is type(np.nan):
             out.append(fill)
         else:
-            for i in range(0, elements):
-                row[i] -= mean[i].astype(float)
-                row[i] /= std[i].astype(float)
+            row = row.astype(float) - mean[i].astype(float)
+            row /= std[i].astype(float)
             out.append(row)
     return out
