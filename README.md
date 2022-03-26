@@ -43,9 +43,17 @@ MIMIC-iv pre-processing code
 | Feature | Description | Range of possible values | Values per admission |
 | --- |---| --- | --- |
 | AIDS | Whether the patient has Acquired ImmunoDeficiency Syndrome | x ∈ {0, 1} | 1 |
+| Gender | Whether the patient is male or female | x ∈ {0, 1} | 1 |
+| Influenza | Whether the patient has the flu | x ∈ {0, 1} | 1 |
 | Heartrate | The patients' hourly heartrate over 24h | 0 < x < 300 | 24
+| Hematocrit | The patient's red blood cell count min/max/mean | ? < x < ? | 3
 | MSCancer | Whether the patient has metastatic cancer | x ∈ {0, 1} | 1 |
+| Mycoplasma | Whether the patient has mycoplasma pneumoniae | x ∈ {0, 1} | 1 |
 | PO2FO2Ratio | The ratio of arterial oxygen to inspired oxygen over 24h | ? < x < ? | 24
+| RSV | Whether the patient has Respiratory Syncytial Virus | x ∈ {0, 1} | 1 |
+| SARS | Whether the patient has SARS-CoV | x ∈ {0, 1} | 1 |
+| Staphylococcus | Whether the patient has Staphylococcus | x ∈ {0, 1} | 1 |
+| Systolic_Blood_Pressure | The patients' hourly systolic blood pressure over 24h | ? < x < ? | 24
 | Temperature | The patients' hourly temperature (°C) over 24h | 25 < x < 50 | 24
 | Whitebloodcells | The patient's white blood cell count min/max/mean | 0 < x < 1000 | 3
 

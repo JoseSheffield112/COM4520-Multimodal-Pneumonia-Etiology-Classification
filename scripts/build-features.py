@@ -45,7 +45,7 @@ def preprocess(table):
     for column in table.columns:
         print('Preprocessing', column, end='... ')
         #try:
-       # print(table[column].values)
+        #print(table[column].values)
         table[column] = import_module('.' + column, 'preprocessing').main(table[column].values)
         print('success!')
         #except Exception as e:
@@ -53,13 +53,15 @@ def preprocess(table):
     print()
     return table
 
-def format_timeseries(table, columns):
+def format_timeseries(table):
+    columns = ['heartrates', 'systolic_blood_pressure', 'temperatures']
     table = table.drop(columns=[col for col in list(table) if col not in columns])
     arr = table.to_numpy()
     arr = np.array([row.tolist() for row in arr.flatten()]).reshape(arr.shape[0], -1, arr.shape[1])
     return arr
 
-def format_static(table, columns):
+def format_static(table):
+    columns = ['age', 'aids', 'gender', 'influenza', 'mscancer', 'mycoplasma', 'rsv', 'sars', 'staphylococcus', 'whitebloodcells']
     table = table.drop(columns=[col for col in list(table) if col not in columns])
     arr = table.to_numpy()
     arr = np.array([np.hstack(row) for row in arr])
@@ -68,12 +70,9 @@ def format_static(table, columns):
 if __name__=='__main__':
     features = [feature for feature in get_individual_features() if type(feature) is type(pd.DataFrame())]
 
-    
-
     features = pd.concat(features, axis=1)
 
-    
-    features = features.dropna(thresh=4) # Keep records with {thresh} non-NaN columns, not including hadm_id
+    features = features.dropna(thresh=8) # Keep records with {thresh} non-NaN columns, not including hadm_id
 
     features = preprocess(features)
 
@@ -83,18 +82,15 @@ if __name__=='__main__':
     features.to_csv(csv_path)
     print('Saved data csv!')
 
-    timeseriesCols = ['heartrates', 'systolic_blood_pressure', 'temperatures']
-    staticCols = ['aids', 'influenza', 'mscancer', 'whitebloodcells']
+
     print('Creating test...')
     test_set = pd.read_csv(labels_root + '/test.csv', header=0, index_col=[0], usecols=['hadm_id', 'etiology']).astype({'etiology': 'int32'})
     test_table = pd.merge(features, test_set, left_index=True, right_index=True)
-    test_ts = format_timeseries(test_table, timeseriesCols)
+    test_ts = format_timeseries(test_table)
     print('Timeseries shape:', test_ts.shape)
-    test_static = format_static(test_table, staticCols)
+    test_static = format_static(test_table)
     print('Static shape:', test_static.shape)
-    etiologies = test_table.etiology.values
-    test_labels = etiologies.reshape(etiologies.shape[0],)
-    print(type(test_labels), test_labels.shape)
+    test_labels = test_table.etiology.values
     print('Labels shape:', test_labels.shape)
     print('Saving test csv...')
     csv_path = Path(output_root + '/test.csv')  
@@ -105,12 +101,11 @@ if __name__=='__main__':
     print('Creating train...')
     train_set = pd.read_csv(labels_root + '/train.csv', header=0, index_col=[0], usecols=['hadm_id', 'etiology']).astype({'etiology': 'int32'})
     train_table = pd.merge(features, train_set, left_index=True, right_index=True)
-    train_ts = format_timeseries(train_table, timeseriesCols)
+    train_ts = format_timeseries(train_table)
     print('Timeseries shape:', train_ts.shape)
-    train_static = format_static(train_table, staticCols)
+    train_static = format_static(train_table)
     print('Static shape:', train_static.shape)
-    etiologies = train_table.etiology.values
-    train_labels = etiologies.reshape(etiologies.shape[0],)
+    train_labels = train_table.etiology.values
     print('Labels shape:', train_labels.shape)
     print('Saving train csv...')
     csv_path = Path(output_root + '/train.csv')  
@@ -121,12 +116,11 @@ if __name__=='__main__':
     print('Creating valid...')
     valid_set = pd.read_csv(labels_root + '/valid.csv', header=0, index_col=[0], usecols=['hadm_id', 'etiology']).astype({'etiology': 'int32'})
     valid_table = pd.merge(features, valid_set, left_index=True, right_index=True)
-    valid_ts = format_timeseries(valid_table, timeseriesCols)
+    valid_ts = format_timeseries(valid_table)
     print('Timeseries shape:', valid_ts.shape)
-    valid_static = format_static(valid_table, staticCols)
+    valid_static = format_static(valid_table)
     print('Static shape:', valid_static.shape)
-    etiologies = valid_table.etiology.values
-    valid_labels = etiologies.reshape(etiologies.shape[0],)
+    valid_labels = valid_table.etiology.values
     print('Labels shape:', valid_labels.shape)
     print('Saving valid csv...')
     csv_path = Path(output_root + '/valid.csv')  
@@ -163,5 +157,5 @@ if __name__=='__main__':
 
         impk = pickle.load(open(output_root + '/im.pk', 'rb'))
         print('\nFirst test', *[impk['test'][key][0] for key in impk['test']], sep='\n')
-        print('\nFirst train', *[impk['train'][key][0] for key in impk['train']], sep='\n')
-        print('\nFirst valid', *[impk['valid'][key][0] for key in impk['valid']], sep='\n')
+        # print('\nFirst train', *[impk['train'][key][0] for key in impk['train']], sep='\n')
+        # print('\nFirst valid', *[impk['valid'][key][0] for key in impk['valid']], sep='\n')
