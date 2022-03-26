@@ -5,5 +5,6 @@ def main(arr):
     std = np.nanstd(arr)
     arr = np.nan_to_num(arr, nan=mean)
     arr = arr - mean
-    arr = arr / std
+    if type(std) is not type(np.nan) and int(std) != 0:
+        arr = arr / std
     return arr
