@@ -59,8 +59,11 @@ def process_admissions(chunk):
             chunk.value.iloc[0] = mean
 
         ## Final array
-        temp = np.array([minimum, maximum, mean])
-        first['whitebloodcells'] = [temp]
+        temp = np.array([minimum, maximum, mean]).astype(float)
+        if np.isnan(temp).any():
+            first['whitebloodcells'] = np.nan
+        else:
+            first['whitebloodcells'] = [temp]
         return first
 
 if __name__ == '__main__':
