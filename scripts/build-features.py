@@ -90,7 +90,6 @@ if __name__=='__main__':
     test_static = format_static(test_table)
     print('Static shape:', test_static.shape)
     test_labels = test_table.etiology.values
-    print(type(test_labels), test_labels.shape)
     print('Labels shape:', test_labels.shape)
     print('Saving test csv...')
     csv_path = Path(output_root + '/test.csv')  
