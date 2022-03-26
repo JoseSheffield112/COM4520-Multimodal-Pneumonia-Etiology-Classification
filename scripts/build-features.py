@@ -87,7 +87,7 @@ if __name__=='__main__':
     test_table = pd.merge(features, test_set, left_index=True, right_index=True)
     test_ts = format_timeseries(test_table, ['heartrates', 'systolic_blood_pressure', 'temperatures'])
     print('Timeseries shape:', test_ts.shape)
-    test_static = format_static(test_table, ['aids', 'mscancer', 'whitebloodcells'])
+    test_static = format_static(test_table, ['aids', 'influenza', 'mscancer', 'whitebloodcells'])
     print('Static shape:', test_static.shape)
     etiologies = test_table.etiology.values
     test_labels = etiologies.reshape(etiologies.shape[0],)
@@ -104,7 +104,7 @@ if __name__=='__main__':
     train_table = pd.merge(features, train_set, left_index=True, right_index=True)
     train_ts = format_timeseries(train_table, ['heartrates', 'systolic_blood_pressure', 'temperatures'])
     print('Timeseries shape:', train_ts.shape)
-    train_static = format_static(train_table, ['aids', 'mscancer', 'whitebloodcells'])
+    train_static = format_static(train_table, ['aids', 'influenza', 'mscancer', 'whitebloodcells'])
     print('Static shape:', train_static.shape)
     etiologies = train_table.etiology.values
     train_labels = etiologies.reshape(etiologies.shape[0],)
