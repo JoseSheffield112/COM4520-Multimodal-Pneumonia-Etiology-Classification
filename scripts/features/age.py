@@ -31,12 +31,9 @@ def main():
 
     print('Admission count: ', len(set(data.index.values)))
     print('Shape: ', data.shape)
-    print(data)
     return data
 
 if __name__ == '__main__':
     print('Saving age feature...')
     main().to_pickle(feature_root + '/age.pickle')
-    print('Saved age!\n')
-    f = pd.read_pickle(feature_root + '/age.pickle')
-    print(f)
+    
