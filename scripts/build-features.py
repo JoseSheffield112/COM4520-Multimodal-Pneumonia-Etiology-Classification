@@ -45,7 +45,7 @@ def preprocess(table):
     for column in table.columns:
         print('Preprocessing', column, end='... ')
         #try:
-       # print(table[column].values)
+        #print(table[column].values)
         table[column] = import_module('.' + column, 'preprocessing').main(table[column].values)
         print('success!')
         #except Exception as e:
@@ -61,7 +61,7 @@ def format_timeseries(table):
     return arr
 
 def format_static(table):
-    columns = ['age', 'aids', 'influenza', 'mscancer', 'whitebloodcells']
+    columns = ['age', 'aids', 'gender', 'influenza', 'mscancer', 'whitebloodcells']
     table = table.drop(columns=[col for col in list(table) if col not in columns])
     arr = table.to_numpy()
     arr = np.array([np.hstack(row) for row in arr])
