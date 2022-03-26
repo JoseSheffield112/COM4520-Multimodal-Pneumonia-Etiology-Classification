@@ -44,11 +44,12 @@ def get_individual_features():
 def preprocess(table):
     for column in table.columns:
         print('Preprocessing', column, end='... ')
-        try:
-            table[column] = import_module('.' + column, 'preprocessing').main(table[column].values)
-            print('success!')
-        except Exception as e:
-            print('failed:', e)
+        #try:
+       # print(table[column].values)
+        table[column] = import_module('.' + column, 'preprocessing').main(table[column].values)
+        print('success!')
+        #except Exception as e:
+         #   print('failed:', e)
     print()
     return table
 
@@ -67,7 +68,10 @@ def format_static(table, columns):
 if __name__=='__main__':
     features = [feature for feature in get_individual_features() if type(feature) is type(pd.DataFrame())]
 
+    
+
     features = pd.concat(features, axis=1)
+
     features = features.dropna(thresh=4) # Keep records with {thresh} non-NaN columns, not including hadm_id
 
     features = preprocess(features)
@@ -79,14 +83,14 @@ if __name__=='__main__':
     print('Saved data csv!')
 
     print('Creating test...')
-    test_set = pd.read_csv(labels_root + '/test.csv', header=0, index_col=[0], usecols=['hadm_id', 'etiology'])
+    test_set = pd.read_csv(labels_root + '/test.csv', header=0, index_col=[0], usecols=['hadm_id', 'etiology']).astype({'etiology': 'int32'})
     test_table = pd.merge(features, test_set, left_index=True, right_index=True)
     test_ts = format_timeseries(test_table, ['heartrates', 'systolic_blood_pressure', 'temperatures'])
     print('Timeseries shape:', test_ts.shape)
     test_static = format_static(test_table, ['aids', 'influenza', 'mscancer', 'whitebloodcells'])
     print('Static shape:', test_static.shape)
     etiologies = test_table.etiology.values
-    test_labels = etiologies.reshape(etiologies.shape[0], 1)
+    test_labels = etiologies.reshape(etiologies.shape[0],)
     print(type(test_labels), test_labels.shape)
     print('Labels shape:', test_labels.shape)
     print('Saving test csv...')
@@ -96,14 +100,14 @@ if __name__=='__main__':
     print('Saved test csv!')
 
     print('Creating train...')
-    train_set = pd.read_csv(labels_root + '/train.csv', header=0, index_col=[0], usecols=['hadm_id', 'etiology'])
+    train_set = pd.read_csv(labels_root + '/train.csv', header=0, index_col=[0], usecols=['hadm_id', 'etiology']).astype({'etiology': 'int32'})
     train_table = pd.merge(features, train_set, left_index=True, right_index=True)
     train_ts = format_timeseries(train_table, ['heartrates', 'systolic_blood_pressure', 'temperatures'])
     print('Timeseries shape:', train_ts.shape)
     train_static = format_static(train_table, ['aids', 'influenza', 'mscancer', 'whitebloodcells'])
     print('Static shape:', train_static.shape)
     etiologies = train_table.etiology.values
-    train_labels = etiologies.reshape(etiologies.shape[0], 1)
+    train_labels = etiologies.reshape(etiologies.shape[0],)
     print('Labels shape:', train_labels.shape)
     print('Saving train csv...')
     csv_path = Path(output_root + '/train.csv')  
@@ -112,14 +116,14 @@ if __name__=='__main__':
     print('Saved train csv!')
 
     print('Creating valid...')
-    valid_set = pd.read_csv(labels_root + '/valid.csv', header=0, index_col=[0], usecols=['hadm_id', 'etiology'])
+    valid_set = pd.read_csv(labels_root + '/valid.csv', header=0, index_col=[0], usecols=['hadm_id', 'etiology']).astype({'etiology': 'int32'})
     valid_table = pd.merge(features, valid_set, left_index=True, right_index=True)
     valid_ts = format_timeseries(valid_table, ['heartrates', 'systolic_blood_pressure', 'temperatures'])
     print('Timeseries shape:', valid_ts.shape)
     valid_static = format_static(valid_table, ['aids', 'mscancer', 'whitebloodcells'])
     print('Static shape:', valid_static.shape)
     etiologies = valid_table.etiology.values
-    valid_labels = etiologies.reshape(etiologies.shape[0], 1)
+    valid_labels = etiologies.reshape(etiologies.shape[0],)
     print('Labels shape:', valid_labels.shape)
     print('Saving valid csv...')
     csv_path = Path(output_root + '/valid.csv')  
