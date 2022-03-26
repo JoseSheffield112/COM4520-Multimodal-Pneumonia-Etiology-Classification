@@ -72,6 +72,7 @@ if __name__=='__main__':
 
     features = pd.concat(features, axis=1)
 
+    
     features = features.dropna(thresh=4) # Keep records with {thresh} non-NaN columns, not including hadm_id
 
     features = preprocess(features)
@@ -82,12 +83,14 @@ if __name__=='__main__':
     features.to_csv(csv_path)
     print('Saved data csv!')
 
+    timeseriesCols = ['heartrates', 'systolic_blood_pressure', 'temperatures']
+    staticCols = ['aids', 'influenza', 'mscancer', 'whitebloodcells']
     print('Creating test...')
     test_set = pd.read_csv(labels_root + '/test.csv', header=0, index_col=[0], usecols=['hadm_id', 'etiology']).astype({'etiology': 'int32'})
     test_table = pd.merge(features, test_set, left_index=True, right_index=True)
-    test_ts = format_timeseries(test_table, ['heartrates', 'systolic_blood_pressure', 'temperatures'])
+    test_ts = format_timeseries(test_table, timeseriesCols)
     print('Timeseries shape:', test_ts.shape)
-    test_static = format_static(test_table, ['aids', 'influenza', 'mscancer', 'whitebloodcells'])
+    test_static = format_static(test_table, staticCols)
     print('Static shape:', test_static.shape)
     etiologies = test_table.etiology.values
     test_labels = etiologies.reshape(etiologies.shape[0],)
@@ -102,9 +105,9 @@ if __name__=='__main__':
     print('Creating train...')
     train_set = pd.read_csv(labels_root + '/train.csv', header=0, index_col=[0], usecols=['hadm_id', 'etiology']).astype({'etiology': 'int32'})
     train_table = pd.merge(features, train_set, left_index=True, right_index=True)
-    train_ts = format_timeseries(train_table, ['heartrates', 'systolic_blood_pressure', 'temperatures'])
+    train_ts = format_timeseries(train_table, timeseriesCols)
     print('Timeseries shape:', train_ts.shape)
-    train_static = format_static(train_table, ['aids', 'influenza', 'mscancer', 'whitebloodcells'])
+    train_static = format_static(train_table, staticCols)
     print('Static shape:', train_static.shape)
     etiologies = train_table.etiology.values
     train_labels = etiologies.reshape(etiologies.shape[0],)
@@ -118,9 +121,9 @@ if __name__=='__main__':
     print('Creating valid...')
     valid_set = pd.read_csv(labels_root + '/valid.csv', header=0, index_col=[0], usecols=['hadm_id', 'etiology']).astype({'etiology': 'int32'})
     valid_table = pd.merge(features, valid_set, left_index=True, right_index=True)
-    valid_ts = format_timeseries(valid_table, ['heartrates', 'systolic_blood_pressure', 'temperatures'])
+    valid_ts = format_timeseries(valid_table, timeseriesCols)
     print('Timeseries shape:', valid_ts.shape)
-    valid_static = format_static(valid_table, ['aids', 'mscancer', 'whitebloodcells'])
+    valid_static = format_static(valid_table, staticCols)
     print('Static shape:', valid_static.shape)
     etiologies = valid_table.etiology.values
     valid_labels = etiologies.reshape(etiologies.shape[0],)

@@ -11,7 +11,7 @@ from get_data import get_dataloader # noqa
 from fusions.common_fusions import Concat # noqa
 from training_structures.Supervised_Learning import train, test # noqa
 
-import scripts.config as const
+import scripts.const as const
 
 # Point this to the resulting file of our preprocessing code (/output/im.pk)
 PATH_TO_DATA = 'C:\dev\darwin\datasetExploration\data\ourim.pk'

@@ -21,7 +21,7 @@ def get_dataloader(batch_size=40, num_workers=1, train_shuffle=True, imputed_pat
 
 
     NOTE: (To delete note) I've left a bunch of the old Multibench code in here for reference. I would delete it, but I want you guys to see that I didn't pull anything out of 
-    my arse. This is mostly Multibench code, where the branches of code for the mimic model wouldn't get 
+    my arse. This is mostly Multibench code with deletions of what's unnecesary.
     '''
 
     f = open(imputed_path, 'rb')

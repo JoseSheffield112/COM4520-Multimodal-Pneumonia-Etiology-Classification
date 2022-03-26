@@ -11,7 +11,7 @@ from get_data import get_dataloader # noqa
 from fusions.common_fusions import Concat # noqa
 from training_structures.Supervised_Learning import train, test # noqa
 
-import scripts.config as const
+import scripts.const as const
 
 # Point this to the resulting file of our preprocessing code (/output/im.pk)
 PATH_TO_DATA = 'C:\dev\darwin\datasetExploration\data\ourim.pk'
@@ -20,14 +20,15 @@ def main():
 
     traindata, validdata, testdata = get_dataloader(
         7, imputed_path=PATH_TO_DATA, model = const.Models.static_and_time_series)
-
-    traindata.dataset = [(dataTuple[0],dataTuple[2])for dataTuple in traindata.dataset]    
+ 
 
     # build encoders, head and fusion layer. Only changed the first argument of MLP and GRU (input dimensions) to make them match the shape of our data
     encoders = [MLP(2, 10, 10, dropout=False).cuda(), GRU(
         3, 30, dropout=False, batch_first=True).cuda()]
     head = MLP(730, 40, 2, dropout=False).cuda()
     fusion = Concat().cuda()
+
+    state_dict = torch.load('C:\dev\darwin\preprocessing\COM4520PreProcessing\pretrained\densenet_P_etiology.pth')
 
     # train
     train(encoders, fusion, head, traindata, validdata, 20, auprc=True)
