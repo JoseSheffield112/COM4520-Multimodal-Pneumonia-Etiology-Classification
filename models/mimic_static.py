@@ -19,14 +19,12 @@ PATH_TO_DATA = 'C:\dev\darwin\datasetExploration\data\ourim.pk'
 def main():
 
     traindata, validdata, testdata = get_dataloader(
-        7, imputed_path=PATH_TO_DATA, model = const.Models.static_and_time_series)
-
-    traindata.dataset = [(dataTuple[0],dataTuple[2])for dataTuple in traindata.dataset]    
+        7, imputed_path=PATH_TO_DATA, model = const.Models.static)
+ 
 
     # build encoders, head and fusion layer. Only changed the first argument of MLP and GRU (input dimensions) to make them match the shape of our data
-    encoders = [MLP(2, 10, 10, dropout=False).cuda(), GRU(
-        3, 30, dropout=False, batch_first=True).cuda()]
-    head = MLP(730, 40, 2, dropout=False).cuda()
+    encoders = [MLP(2, 10, 10, dropout=False).cuda()]
+    head = MLP(10, 40, 2, dropout=False).cuda()
     fusion = Concat().cuda()
 
     # train
