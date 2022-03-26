@@ -5,21 +5,27 @@ import sys
 import os
 import numpy as np
 from torch.utils.data import DataLoader
+import scripts.config as const
 import random
 import pickle
 import copy
 
-#Added by me:
-#import pdb
 
 sys.path.append(os.path.dirname(os.path.dirname(os.getcwd())))
 
 
-# task: integer between -1 and 19 inclusive, -1 means mortality task, 0-19 means icd9 task
-def get_dataloader(task, batch_size=40, num_workers=1, train_shuffle=True, imputed_path='im.pk', flatten_time_series=False, tabular_robust=True, timeseries_robust=True):
+
+def get_dataloader(batch_size=40, num_workers=1, train_shuffle=True, imputed_path='im.pk', model = const.Models.static_and_time_series):
+    '''
+    Gets the training,validation and testing dataloaders when pointed to our processed data.
+
+
+    NOTE: (To delete note) I've left a bunch of the old Multibench code in here for reference. I would delete it, but I want you guys to see that I didn't pull anything out of 
+    my arse. This is mostly Multibench code, where the branches of code for the mimic model wouldn't get 
+    '''
+
     f = open(imputed_path, 'rb')
     datafile = pickle.load(f)
-
 
     f.close()
     '''
@@ -84,14 +90,33 @@ def get_dataloader(task, batch_size=40, num_workers=1, train_shuffle=True, imput
     #le = len(y)
     #Make a tuple
     
-    le = len(datafile['valid']['labels'])
-    valids_data = [(datafile['valid']['static'][i],datafile['valid']['timeseries'][i],datafile['valid']['labels'][i]) for i in range(le)]
+    if (model == const.Models.static_and_time_series):
+        le = len(datafile['valid']['labels'])
+        valids_data = [(datafile['valid']['static'][i],datafile['valid']['timeseries'][i],datafile['valid']['labels'][i]) for i in range(le)]
 
-    le = len(datafile['train']['labels'])
-    train_data = [(datafile['train']['static'][i],datafile['train']['timeseries'][i],datafile['train']['labels'][i]) for i in range(le)]
+        le = len(datafile['train']['labels'])
+        train_data = [(datafile['train']['static'][i],datafile['train']['timeseries'][i],datafile['train']['labels'][i]) for i in range(le)]
 
-    le = len(datafile['test']['labels'])
-    test_data = [(datafile['test']['static'][i],datafile['test']['timeseries'][i],datafile['test']['labels'][i]) for i in range(le)]
+        le = len(datafile['test']['labels'])
+        test_data = [(datafile['test']['static'][i],datafile['test']['timeseries'][i],datafile['test']['labels'][i]) for i in range(le)]
+    elif (model == const.Models.static):
+        le = len(datafile['valid']['labels'])
+        valids_data = [(datafile['valid']['static'][i],datafile['valid']['labels'][i]) for i in range(le)]
+
+        le = len(datafile['train']['labels'])
+        train_data = [(datafile['train']['static'][i],datafile['train']['labels'][i]) for i in range(le)]
+
+        le = len(datafile['test']['labels'])
+        test_data = [(datafile['test']['static'][i],datafile['test']['labels'][i]) for i in range(le)]
+    elif (model == const.Models.time_series):
+        le = len(datafile['valid']['labels'])
+        valids_data = [(datafile['valid']['timeseries'][i],datafile['valid']['labels'][i]) for i in range(le)]
+
+        le = len(datafile['train']['labels'])
+        train_data = [(datafile['train']['timeseries'][i],datafile['train']['labels'][i]) for i in range(le)]
+
+        le = len(datafile['test']['labels'])
+        test_data = [(datafile['test']['timeseries'][i],datafile['test']['labels'][i]) for i in range(le)]
 
     
 

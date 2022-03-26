@@ -1,5 +1,6 @@
 # Run on your machine to ignore remote changes so that you don't get annoyed every time someone changes a file:
 # git update-index --skip-worktree scripts/config.py
+from enum import Enum
 
 save_npz = True
 low_memory = False
@@ -24,3 +25,11 @@ connection_json_root = 'config/connection.json'
 
 # Root for the mimic-code repository. Needed to find some useful sql scripts for imputing features. 
 mimic_code_root = 'C:/dev/darwin/mimic-code'
+
+
+class Models(Enum):
+     static = 1
+     time_series = 2
+     image_data = 3
+     static_and_time_series = 3
+     static_and_time_series_and_image_data = 4
