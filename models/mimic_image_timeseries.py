@@ -3,8 +3,8 @@ import os
 import torch
 from torch import nn
 from multiprocessing import freeze_support
+import pickle
 import pandas as pd
-import scripts.config as config
 
 sys.path.append(os.getcwd())
 
@@ -13,19 +13,25 @@ from get_data import get_dataloader # noqa
 from fusions.common_fusions import Concat # noqa
 from training_structures.Supervised_Learning import train, test # noqa
 
+from mimic_cxr.models.xrv_model import DenseNetXRVFeature
+
 import scripts.const as const
+import scripts.config as config
 
 # Point this to the resulting file of our preprocessing code (/output/im.pk)
 PATH_TO_DATA = 'C:\dev\darwin\datasetExploration\data\ourim.pk'
 
 def main():
 
+    image_model = DenseNetXRVFeature(pretrain_weights="densenet121-res224-all")
+    image_model.load_state_dict(torch.load(config.pretrained_root + '/densenet_P_etiology.pth'))
+
     traindata, validdata, testdata = get_dataloader(
-        7, imputed_path=PATH_TO_DATA, model = const.Models.timeseries)
+        1, imputed_path=PATH_TO_DATA, model = const.Models.timeseries_image)
 
 
-    encoders = [GRU(const.nr_timeseries_features, 30, dropout=False, batch_first=True).cuda()]
-    head = MLP(720, 40, 2, dropout=False).cuda()
+    encoders = [GRU(const.nr_timeseries_features, 30, dropout=False, batch_first=True).cuda(), image_model.cuda()]
+    head = MLP(const.image_encoder_output_size + 720, 40, 2, dropout=False).cuda()
     fusion = Concat().cuda()
 
     # train
@@ -41,8 +47,8 @@ def main():
     outputStats(stats)
 
 def outputStats(stats):
-    # Outputs statistics to stats folder
-    pd.DataFrame(stats['valid'],columns = ['epoch','acc','valloss']).to_csv(config.stats_root +'/timeseries_val_perform_while_training.csv')
+    pd.DataFrame(stats['valid'],columns = ['epoch','acc','valloss']).to_csv(config.stats_root +'/image_timeseries_val_perform_while_training.csv')
+
 
 if __name__ == '__main__':
     freeze_support()

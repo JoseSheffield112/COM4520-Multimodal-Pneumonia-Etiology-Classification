@@ -5,8 +5,12 @@ save_npz = True
 low_memory = False
 save_intermediates = True
 overwrite_cache = False
+
+#TODO: Add some comments here explaining what each path is for.
 in_data_root = 'C:/dev/darwin/datasets/mimic-iv-1.0'
+image_data_root = 'datasets'
 out_data_root = 'datasets/mimic-iv/mimic-iv-full-cohort-v3'
+pretrained_root = 'pretrained'
 cohort_root = 'cohorts'
 origin_root = 'C:/dev/darwin/datasets/mimic-iv-1.0'
 feature_script_root = 'scripts/features'
@@ -16,8 +20,11 @@ feature_root = 'features'
 labels_root = 'cohorts'
 
 output_root = 'output'
-
-
+#Statistics
+#Relative path to root of folder where statistics are output
+stats_root = 'stats'
+#Relative path to root of folder where graphs are held
+graphs_root = stats_root + '/graphs'
 #Sql databse connection data 
 #Path to json file that contains information needed to connect to a postgresql database
 connection_json_root = 'config/connection.json'

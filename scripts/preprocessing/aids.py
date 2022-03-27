@@ -1,6 +1,7 @@
 import numpy as np
 
 def main(arr):
+    print(arr)
     mean = np.nanmean(arr)
     std = np.nanstd(arr)
     arr = np.nan_to_num(arr, nan=mean)

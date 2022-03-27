@@ -3,6 +3,8 @@ import os
 import torch
 from torch import nn
 from multiprocessing import freeze_support
+import pandas as pd
+import scripts.config as config
 
 sys.path.append(os.getcwd())
 
@@ -19,19 +21,16 @@ PATH_TO_DATA = 'C:\dev\darwin\datasetExploration\data\ourim.pk'
 def main():
 
     traindata, validdata, testdata = get_dataloader(
-        7, imputed_path=PATH_TO_DATA, model = const.Models.static_and_time_series)
+        7, imputed_path=PATH_TO_DATA, model = const.Models.static_timeseries)
  
 
-    # build encoders, head and fusion layer. Only changed the first argument of MLP and GRU (input dimensions) to make them match the shape of our data
-    encoders = [MLP(2, 10, 10, dropout=False).cuda(), GRU(
-        3, 30, dropout=False, batch_first=True).cuda()]
-    head = MLP(730, 40, 2, dropout=False).cuda()
+    encoders = [MLP(const.nr_static_features, 10, 10, dropout=False).cuda(), GRU(
+        const.nr_timeseries_features, 30, dropout=False, batch_first=True).cuda()]
+    head = MLP(720 + 10, 40, 2, dropout=False).cuda()
     fusion = Concat().cuda()
 
-    state_dict = torch.load('C:\dev\darwin\preprocessing\COM4520PreProcessing\pretrained\densenet_P_etiology.pth')
-
     # train
-    train(encoders, fusion, head, traindata, validdata, 20, auprc=True)
+    stats = train(encoders, fusion, head, traindata, validdata, 20, auprc=True)
 
     # test
     print("Testing: ")
@@ -39,6 +38,13 @@ def main():
 
     # dataset = 'mimic mortality', 'mimic 1', 'mimic 7'
     test(model, testdata, dataset='mimic 7', auprc=True)
+
+    outputStats(stats)
+
+def outputStats(stats):
+    # stats is a dictionary containing statistics regarding the model performance during training/validating
+    # Outputs statistics to stats folder
+    pd.DataFrame(stats['valid'],columns = ['epoch','acc','valloss']).to_csv(config.stats_root +'/static_timeseries_val_perform_while_training.csv')
 
 
 if __name__ == '__main__':

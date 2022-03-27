@@ -2,6 +2,7 @@
 import pickle
 import os
 import sys
+from tkinter import image_names
 sys.path.append(os.getcwd()) # Append current directory to sys.path. Makes it easier to run this script individually from the terminal.
 
 from os import listdir
@@ -49,7 +50,7 @@ def preprocess(table):
         table[column] = import_module('.' + column, 'preprocessing').main(table[column].values)
         print('success!')
         #except Exception as e:
-         #   print('failed:', e)
+        #   print('failed:', e)
     print()
     return table
 
@@ -67,14 +68,44 @@ def format_static(table):
     arr = np.array([np.hstack(row) for row in arr])
     return arr
 
+def get_image_data():
+    #Gets image data formatted as a dataframe with the image input as one column and hadm_id as the other
+    
+    f = open(image_data_root + '/train.pk', 'rb')
+    train_images = pickle.load(f)
+    f.close()
+    train_images = [(sample['hadm_id'].item(),sample['img'].detach().cpu().numpy()) for sample in train_images]
+    train_images = pd.DataFrame(train_images,columns = ['hadm_id','image']).set_index('hadm_id')
+
+    f = open(image_data_root + '/valid.pk', 'rb')
+    valid_images = pickle.load(f)
+    f.close()
+    valid_images = [(sample['hadm_id'].item(),sample['img'].detach().cpu().numpy()) for sample in valid_images]
+    valid_images = pd.DataFrame(valid_images,columns = ['hadm_id','image']).set_index('hadm_id')
+
+    f = open(image_data_root + '/test.pk', 'rb')
+    test_images = pickle.load(f)
+    f.close()
+    test_images = [(sample['hadm_id'].item(),sample['img'].detach().cpu().numpy()) for sample in test_images]
+    test_images = pd.DataFrame(test_images, columns = ['hadm_id','image']).set_index('hadm_id')
+
+    return {'train':train_images,'valid':valid_images,'test':test_images}
+
+
+
+
 if __name__=='__main__':
     features = [feature for feature in get_individual_features() if type(feature) is type(pd.DataFrame())]
 
+
+
     features = pd.concat(features, axis=1)
 
-    features = features.dropna(thresh=8) # Keep records with {thresh} non-NaN columns, not including hadm_id
+    features = features.dropna(thresh=4) # Keep records with {thresh} non-NaN columns, not including hadm_id
 
     features = preprocess(features)
+
+
 
     print('Saving data csv...')
     csv_path = Path(output_root + '/data.csv')  
@@ -82,14 +113,19 @@ if __name__=='__main__':
     features.to_csv(csv_path)
     print('Saved data csv!')
 
+    images = get_image_data()
 
     print('Creating test...')
     test_set = pd.read_csv(labels_root + '/test.csv', header=0, index_col=[0], usecols=['hadm_id', 'etiology']).astype({'etiology': 'int32'})
     test_table = pd.merge(features, test_set, left_index=True, right_index=True)
+    test_table = pd.merge(test_table, images['test'], left_index=True, right_index=True)
+
     test_ts = format_timeseries(test_table)
     print('Timeseries shape:', test_ts.shape)
     test_static = format_static(test_table)
     print('Static shape:', test_static.shape)
+    test_images = test_table.image.values
+    print('Images shape:', test_images.shape)
     test_labels = test_table.etiology.values
     print('Labels shape:', test_labels.shape)
     print('Saving test csv...')
@@ -101,10 +137,14 @@ if __name__=='__main__':
     print('Creating train...')
     train_set = pd.read_csv(labels_root + '/train.csv', header=0, index_col=[0], usecols=['hadm_id', 'etiology']).astype({'etiology': 'int32'})
     train_table = pd.merge(features, train_set, left_index=True, right_index=True)
+    train_table = pd.merge(train_table, images['train'], left_index=True, right_index=True)
+
     train_ts = format_timeseries(train_table)
     print('Timeseries shape:', train_ts.shape)
     train_static = format_static(train_table)
     print('Static shape:', train_static.shape)
+    train_images = train_table.image.values
+    print('Images shape:', train_images.shape)
     train_labels = train_table.etiology.values
     print('Labels shape:', train_labels.shape)
     print('Saving train csv...')
@@ -116,10 +156,14 @@ if __name__=='__main__':
     print('Creating valid...')
     valid_set = pd.read_csv(labels_root + '/valid.csv', header=0, index_col=[0], usecols=['hadm_id', 'etiology']).astype({'etiology': 'int32'})
     valid_table = pd.merge(features, valid_set, left_index=True, right_index=True)
+    valid_table = pd.merge(valid_table, images['valid'], left_index=True, right_index=True)
+
     valid_ts = format_timeseries(valid_table)
     print('Timeseries shape:', valid_ts.shape)
     valid_static = format_static(valid_table)
     print('Static shape:', valid_static.shape)
+    valid_images = valid_table.image.values
+    print('Images shape:', valid_images.shape)
     valid_labels = valid_table.etiology.values
     print('Labels shape:', valid_labels.shape)
     print('Saving valid csv...')
@@ -133,18 +177,21 @@ if __name__=='__main__':
         test_array = {
             'timeseries': test_ts,
             'static': test_static,
+            'image' : test_images,
             'labels': test_labels
         }
         print('Test shapes:', *[test_array[arr].shape for arr in test_array])
         train_array = {
             'timeseries': train_ts,
             'static': train_static,
+            'image' : train_images,
             'labels': train_labels
         }
         print('Train shapes:', *[train_array[arr].shape for arr in train_array])
         valid_array = {
             'timeseries': valid_ts,
             'static': valid_static,
+            'image' : valid_images,
             'labels': valid_labels
         }
         print('Valid shapes:', *[valid_array[arr].shape for arr in valid_array])

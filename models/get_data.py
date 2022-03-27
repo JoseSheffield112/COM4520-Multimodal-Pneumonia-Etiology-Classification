@@ -5,17 +5,17 @@ import sys
 import os
 import numpy as np
 from torch.utils.data import DataLoader
-import scripts.config as const
+import scripts.const as const
 import random
 import pickle
 import copy
 
 
-sys.path.append(os.path.dirname(os.path.dirname(os.getcwd())))
+#sys.path.append(os.path.dirname(os.path.dirname(os.getcwd())))
 
 
 
-def get_dataloader(batch_size=40, num_workers=1, train_shuffle=True, imputed_path='im.pk', model = const.Models.static_and_time_series):
+def get_dataloader(batch_size=40, num_workers=1, train_shuffle=True, imputed_path='im.pk', model = const.Models.static_timeseries):
     '''
     Gets the training,validation and testing dataloaders when pointed to our processed data.
 
@@ -26,7 +26,6 @@ def get_dataloader(batch_size=40, num_workers=1, train_shuffle=True, imputed_pat
 
     f = open(imputed_path, 'rb')
     datafile = pickle.load(f)
-
     f.close()
     '''
     X_t = datafile['ep_tdata']
@@ -90,7 +89,16 @@ def get_dataloader(batch_size=40, num_workers=1, train_shuffle=True, imputed_pat
     #le = len(y)
     #Make a tuple
     
-    if (model == const.Models.static_and_time_series):
+    if (model == const.Models.static_timeseries_image):
+        le = len(datafile['valid']['labels'])
+        valids_data = [(datafile['valid']['static'][i],datafile['valid']['timeseries'][i],datafile['valid']['image'][i],datafile['valid']['labels'][i]) for i in range(le)]
+
+        le = len(datafile['train']['labels'])
+        train_data = [(datafile['train']['static'][i],datafile['train']['timeseries'][i],datafile['train']['image'][i],datafile['train']['labels'][i]) for i in range(le)]
+
+        le = len(datafile['test']['labels'])
+        test_data = [(datafile['test']['static'][i],datafile['test']['timeseries'][i],datafile['test']['image'][i],datafile['test']['labels'][i]) for i in range(le)]
+    elif (model == const.Models.static_timeseries):
         le = len(datafile['valid']['labels'])
         valids_data = [(datafile['valid']['static'][i],datafile['valid']['timeseries'][i],datafile['valid']['labels'][i]) for i in range(le)]
 
@@ -99,6 +107,24 @@ def get_dataloader(batch_size=40, num_workers=1, train_shuffle=True, imputed_pat
 
         le = len(datafile['test']['labels'])
         test_data = [(datafile['test']['static'][i],datafile['test']['timeseries'][i],datafile['test']['labels'][i]) for i in range(le)]
+    elif (model == const.Models.static_image):
+        le = len(datafile['valid']['labels'])
+        valids_data = [(datafile['valid']['static'][i],datafile['valid']['image'][i],datafile['valid']['labels'][i]) for i in range(le)]
+
+        le = len(datafile['train']['labels'])
+        train_data = [(datafile['train']['static'][i],datafile['train']['image'][i],datafile['train']['labels'][i]) for i in range(le)]
+
+        le = len(datafile['test']['labels'])
+        test_data = [(datafile['test']['static'][i],datafile['test']['image'][i],datafile['test']['labels'][i]) for i in range(le)]
+    elif (model == const.Models.timeseries_image):
+        le = len(datafile['valid']['labels'])
+        valids_data = [(datafile['valid']['timeseries'][i],datafile['valid']['image'][i],datafile['valid']['labels'][i]) for i in range(le)]
+
+        le = len(datafile['train']['labels'])
+        train_data = [(datafile['train']['timeseries'][i],datafile['train']['image'][i],datafile['train']['labels'][i]) for i in range(le)]
+
+        le = len(datafile['test']['labels'])
+        test_data = [(datafile['test']['timeseries'][i],datafile['test']['image'][i],datafile['test']['labels'][i]) for i in range(le)] 
     elif (model == const.Models.static):
         le = len(datafile['valid']['labels'])
         valids_data = [(datafile['valid']['static'][i],datafile['valid']['labels'][i]) for i in range(le)]
@@ -108,7 +134,7 @@ def get_dataloader(batch_size=40, num_workers=1, train_shuffle=True, imputed_pat
 
         le = len(datafile['test']['labels'])
         test_data = [(datafile['test']['static'][i],datafile['test']['labels'][i]) for i in range(le)]
-    elif (model == const.Models.time_series):
+    elif (model == const.Models.timeseries):
         le = len(datafile['valid']['labels'])
         valids_data = [(datafile['valid']['timeseries'][i],datafile['valid']['labels'][i]) for i in range(le)]
 
@@ -117,6 +143,16 @@ def get_dataloader(batch_size=40, num_workers=1, train_shuffle=True, imputed_pat
 
         le = len(datafile['test']['labels'])
         test_data = [(datafile['test']['timeseries'][i],datafile['test']['labels'][i]) for i in range(le)]
+    elif (model == const.Models.image):
+        le = len(datafile['valid']['labels'])
+        valids_data = [(datafile['valid']['image'][i],datafile['valid']['labels'][i]) for i in range(le)]
+
+        le = len(datafile['train']['labels'])
+        train_data = [(datafile['train']['image'][i],datafile['train']['labels'][i]) for i in range(le)]
+
+        le = len(datafile['test']['labels'])
+        test_data = [(datafile['test']['image'][i],datafile['test']['labels'][i]) for i in range(le)]
+
 
     
 

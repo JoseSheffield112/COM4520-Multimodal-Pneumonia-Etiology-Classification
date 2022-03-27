@@ -1,10 +1,14 @@
 from enum import Enum
 
+nr_static_features = 2
+nr_timeseries_features = 3
+image_encoder_output_size = 1024
 
 class Models(Enum):
      static = 1
-     time_series = 2
-     image_data = 3
-     static_and_time_series = 3
-     static_and_time_series_and_image_data = 4
-     static_and_image_data = 5
+     timeseries = 2
+     image = 3
+     static_timeseries = 4
+     static_timeseries_image = 5
+     static_image = 6
+     timeseries_image = 7
