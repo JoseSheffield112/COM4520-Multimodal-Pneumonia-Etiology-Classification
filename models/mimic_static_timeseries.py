@@ -1,12 +1,12 @@
 import sys
 import os
+sys.path.append(os.getcwd())
 import torch
 from torch import nn
 from multiprocessing import freeze_support
 import pandas as pd
 import scripts.config as config
 
-sys.path.append(os.getcwd())
 
 from unimodals.common_models import MLP, GRU # noqa
 from get_data import get_dataloader # noqa
