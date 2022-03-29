@@ -11,12 +11,12 @@ icd_filter = ['48240', '48241', '48242']
 
 def main():
     print('Reading diagnoses_icd...')
-    columns = ['hadm_id', 'icd_code']
-    iter_csv = pd.read_csv(origin_root + '/hosp/diagnoses_icd.csv', header=0, index_col=[0], iterator=True, chunksize=1000, usecols=columns)
+    columns = ['subject_id', 'hadm_id', 'icd_code']
+    iter_csv = pd.read_csv(origin_root + '/hosp/diagnoses_icd.csv', header=0, iterator=True, chunksize=1000, usecols=columns)
     data = pd.concat([chunk for chunk in iter_csv])
 
     print('Processing staphylococcus...')
-    data = pd.concat([process_admission(chunk) for chunk in [data[data.index == admission] for admission in data.index.unique()]])
+    data = pd.concat([process_patient(chunk) for chunk in [data[data.subject_id == subject] for subject in data.subject_id.unique()]])
 
     if save_intermediates:
         print('Saving intermediate...')
@@ -29,14 +29,19 @@ def main():
     print('Shape: ', data.shape)
     return data
 
-def process_admission(chunk):
+def process_patient(chunk):
     chunk['staphylococcus'] = chunk.icd_code.isin(icd_filter).astype(int)
-    chunk = chunk.drop(columns='icd_code')
-    chunk = chunk.drop_duplicates('staphylococcus')
+    chunk = chunk.drop(columns=['subject_id', 'icd_code'])
+    chunk = chunk.drop_duplicates(['hadm_id', 'staphylococcus'])
     if chunk.values.any():
-        chunk = chunk.assign(staphylococcus=1)
+        id = chunk.staphylococcus.idxmax()
+        before = chunk.iloc[:id, :]
+        after = chunk.iloc[id:, :]
+        after = after.assign(staphylococcus=1)
+        chunk = pd.concat([before, after])
 
-    chunk = chunk[~chunk.index.duplicated(keep='first')]
+    chunk = chunk.set_index('hadm_id')
+    chunk = chunk[~chunk.index.duplicated(keep='last')] # Sometimes an admission will have 0 then 1 if there was another diagnosis prior to staphylococcus
     return chunk
 
 if __name__ == '__main__':
