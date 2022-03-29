@@ -64,7 +64,7 @@ def format_timeseries(table):
     return arr
 
 def format_static(table):
-    columns = ['age', 'aids', 'gender', 'mscancer', 'mycoplasma', 'staphylococcus' 'whitebloodcells']
+    columns = ['age', 'aids', 'gender', 'hematocrit', 'mscancer', 'mycoplasma', 'staphylococcus', 'whitebloodcells']
     table = table.drop(columns=[col for col in list(table) if col not in columns])
     arr = table.to_numpy()
     arr = np.array([np.hstack(row) for row in arr])
