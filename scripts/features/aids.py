@@ -35,8 +35,8 @@ def process_patient(chunk):
     chunk = chunk.drop_duplicates(['hadm_id', 'aids'])
     if chunk.values.any():
         id = chunk.aids.idxmax()
-        before = chunk.iloc[:id-1, :]
-        after = chunk.iloc[id-1:, :]
+        before = chunk.iloc[:id, :]
+        after = chunk.iloc[id:, :]
         after = after.assign(aids=1)
         chunk = pd.concat([before, after])
 

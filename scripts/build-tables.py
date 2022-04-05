@@ -27,7 +27,7 @@ def build_tables(mode='full', sample=None, cohort=False):
     column_dict = get_column_dict(mode)
 
     subject_ids = build_patients(column_dict['patients'], sample, cohort)
-    hadm_ids = build_admissions(subject_ids, column_dict['admissions'])
+    hadm_ids = build_admissions(subject_ids, column_dict['admissions'], cohort)
     stay_ids = build_icustays(subject_ids, hadm_ids, column_dict['icustays'])
     build_diagnoses_icd(subject_ids, hadm_ids, column_dict['diagnoses_icd'])
     build_labevents(subject_ids, hadm_ids, column_dict['labevents'], icd_dict['labevents']) # 12.8 GB input
@@ -71,8 +71,8 @@ def get_column_dict(mode):
 
 def get_icd_dict():
     return {
-        'labevents'     : [50821, 50816, 51006, 51300, 51301, 50882, 950824, 50983, 50822, 50971, 50885, 50810, 51221],
-        'chartevents'   : [723, 454, 184, 223900, 223901, 220739, 51, 442, 455, 6701, 220179, 220050, 211, 220045, 678, 223761, 676, 223762, 223835, 3420, 3422, 190],
+        'labevents'     : [11100, 11180, 50821, 50816, 51006, 51300, 51301, 50882, 950824, 50983, 50822, 50971, 50885, 50810, 51221],
+        'chartevents'   : [723, 454, 184, 223900, 223901, 220739, 51, 442, 455, 6701, 220179, 220050, 211, 220045, 678, 223761, 676, 223762, 223835, 3420, 3422, 190, 227444, 227456, 227457],
         'outputevents'  : [40055, 43175, 40069, 40094, 40715, 40473, 40085, 40056, 40056, 40405, 40428, 40086, 40096, 40651, 226559, 226560, 226561, 226584, 226563, 226564, 226565, 226567, 226557, 226558, 227488, 227489]
     }
 
@@ -95,16 +95,24 @@ def build_patients(columns=None, samplesize=None, cohort=False):
     print('Saved patients!\n')
     return data.index.unique()
 
-def build_admissions(subject_ids=None, columns=None):
+def build_admissions(subject_ids=None, columns=None, cohort=False):
     print('Building admissions...')
     iter_csv = pd.read_csv(in_data_root + '/core/admissions.csv', header=0, index_col=[0], iterator=True, chunksize=1000, usecols=columns)
-    if subject_ids.any():
-        data = pd.concat([chunk[chunk.index.isin(subject_ids)] for chunk in iter_csv])
-    else:
+    if cohort:
         data = pd.concat([chunk for chunk in iter_csv])
-    print('Read origin')
-    data = data[~data.index.duplicated(keep='first')]
-    print('Filtered duplicates')
+        print('Read origin')
+        print('Reading cohort...')
+        cohort = pd.read_csv(cohort_root + '/data.csv', header=0)
+        hadm_ids = cohort.hadm_id.unique()
+        data = data[data.hadm_id.isin(hadm_ids)]
+    else:
+        if subject_ids.any():
+            data = pd.concat([chunk[chunk.index.isin(subject_ids)] for chunk in iter_csv])
+        else:
+            data = pd.concat([chunk for chunk in iter_csv])
+        print('Read origin')
+        data = data[~data.index.duplicated(keep='first')]
+        print('Filtered duplicates')
     output_path = Path(out_data_root + '/core/admissions.csv')  
     output_path.parent.mkdir(parents=True, exist_ok=True) 
     data.to_csv(output_path)

@@ -9,7 +9,7 @@ from scripts.config import *
 
 MIN_READINGS_TO_KEEP = 5
 
-itemid_filter = [211, 220045]
+itemid_filter = [227457]
 
 def main():
     print('Reading chartevents...')
@@ -17,16 +17,16 @@ def main():
     iter_csv = pd.read_csv(origin_root + '/icu/chartevents.csv', header=0, index_col=[0], iterator=True, chunksize=10000, usecols=columns)
     data = pd.concat([chunk[chunk.itemid.isin(itemid_filter)] for chunk in iter_csv])
 
-    print('Processing heartrates...')
+    print('Processing plateletcount...')
     data = data.drop(columns='itemid')
     data = pd.concat([process_admission(chunk) for chunk in [data[data.index == admission] for admission in data.index.unique()]])
     
     if save_intermediates:
         print('Saving intermediate...')
-        intermediate_path = Path(intermediate_root + '/heartrates.csv')  
+        intermediate_path = Path(intermediate_root + '/plateletcount.csv')  
         intermediate_path.parent.mkdir(parents=True, exist_ok=True) 
         data.to_csv(intermediate_path)
-        print('Saved intermediate heartrates!')
+        print('Saved intermediate plateletcount!')
 
     print('Admission count: ', len(set(data.index.values)))
     print('Shape: ', data.shape)
@@ -47,12 +47,12 @@ def process_admission(chunk):
     y = chunk.value.values.astype(float)
 
     if len(x) >= MIN_READINGS_TO_KEEP:
-        first['heartrates'] = [np.interp(range(24), x, y).round(1)]
+        first['plateletcount'] = [np.interp(range(24), x, y).round(1)]
     else:
-        first['heartrates'] = [np.nan]
+        first['plateletcount'] = [np.nan]
     return first
 
 if __name__ == '__main__':
-    print('Saving heartrates feature...')
-    main().to_pickle(feature_root + '/heartrates.pickle')
-    print('Saved heartrates!\n')
+    print('Saving plateletcount feature...')
+    main().to_pickle(feature_root + '/plateletcount.pickle')
+    print('Saved plateletcount!\n')

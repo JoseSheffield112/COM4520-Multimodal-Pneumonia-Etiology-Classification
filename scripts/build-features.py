@@ -30,7 +30,9 @@ def get_individual_features():
                     failed[file] = e
             else:
                 try:
+                    print('Loading', file, 'feature...')
                     features[file] = pd.read_pickle(feature_root + '/' + file + '.pickle')
+                    print('Loaded', features[file].shape[0], 'records from', file, 'feature!')
                 except Exception as e:
                     failed[file] = e
     
@@ -55,14 +57,14 @@ def preprocess(table):
     return table
 
 def format_timeseries(table):
-    columns = ['heartrates', 'systolic_blood_pressure', 'temperatures']
+    columns = ['albumin', 'crp', 'heartrates', 'plateletcount', 'systolic_blood_pressure', 'temperatures']
     table = table.drop(columns=[col for col in list(table) if col not in columns])
     arr = table.to_numpy()
     arr = np.array([row.tolist() for row in arr.flatten()]).reshape(arr.shape[0], -1, arr.shape[1])
     return arr
 
 def format_static(table):
-    columns = ['age', 'aids', 'gender', 'influenza', 'mscancer', 'mycoplasma', 'rsv', 'sars', 'staphylococcus', 'whitebloodcells']
+    columns = ['age', 'aids', 'gender', 'hematocrit', 'mscancer', 'mycoplasma', 'staphylococcus', 'whitebloodcells']
     table = table.drop(columns=[col for col in list(table) if col not in columns])
     arr = table.to_numpy()
     arr = np.array([np.hstack(row) for row in arr])
@@ -97,15 +99,11 @@ def get_image_data():
 if __name__=='__main__':
     features = [feature for feature in get_individual_features() if type(feature) is type(pd.DataFrame())]
 
-
-
     features = pd.concat(features, axis=1)
 
     features = features.dropna(thresh=4) # Keep records with {thresh} non-NaN columns, not including hadm_id
 
     features = preprocess(features)
-
-
 
     print('Saving data csv...')
     csv_path = Path(output_root + '/data.csv')  
