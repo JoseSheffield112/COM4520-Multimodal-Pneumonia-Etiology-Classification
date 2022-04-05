@@ -197,24 +197,11 @@ def main():
     plotXYPoints([avg_points_static,avg_points_imagestatic],['static','image_static'],"Comparison of average accuracy while training: static vs static_image",outputDirRoot + '/comparison-avg-validation-staticAndImageStatic.png')
     plotXYPoints([max_points_static,max_points_imagestatic],['static','image_static'],"Comparison of best models accuracy while training: static vs static_image",outputDirRoot + '/comparison-max-validation-staticAndImageStatic.png')
 
-    #3. Bars for testing accuracies for every run
     barPlotModelTestAccuracies(experimentDir,'static',outputDirRoot + '/all-static-test_acc.png')
     barPlotModelTestAccuracies(experimentDir,'image_static',outputDirRoot + '/all-image_static-test_acc.png')
 
     # Images model
-
-    # I want to get graphs from my new folder of data
-
-    #1. I want to get graphs for averages [DONE!]
-    #2. I want to get graphs for maximum performance [DONE!]
-    #4. Bars for the comparison of average testing accuracy[DONE!]
-    #5. Bars for the comparison of max testing accuracy[DONE!]
-
-    #6. Validation: I want to get a comparison of averages[DONE!]
-    #7. Validation: I want to get a comparison of maximum performance[DONE!]
-    
-    #8. Extra. I want to see validation for all runs just for kicks, to show the variance (For both modalities)
-
+    #TODO: Finish the only image modality
 
 
 def legacyGraphs():
