@@ -19,19 +19,19 @@ import scripts.const as const
 import scripts.config as config
 
 # Point this to the resulting file of our preprocessing code (/output/im.pk)
-PATH_TO_DATA = 'C:\dev\darwin\datasetExploration\data\ourim.pk'
+PATH_TO_DATA = 'C:\dev\darwin\datasetExploration\data\ourimNotCheating.pk'
 
 def main():
 
     image_model = DenseNetXRVFeature(pretrain_weights="densenet121-res224-all")
-    image_model.load_state_dict(torch.load(config.pretrained_root + '/densenet_P_etiology.pth'))
+    #image_model.load_state_dict(torch.load(config.pretrained_root + '/densenet_P_etiology.pth'))
 
     #TOFIX: Currently this model only works with batchsize = 1. This is a temporary fix to a bug.
     traindata, validdata, testdata = get_dataloader(
         1, imputed_path=PATH_TO_DATA, model = const.Models.static_image)
 
-    encoders = [MLP(const.nr_static_features, 10, 10, dropout=False).cuda(),image_model.cuda()]
-    head = MLP(const.image_encoder_output_size + 10, 40, 2, dropout=False).cuda()
+    encoders = [MLP(const.nr_static_features, 50, 100, dropout=False).cuda(),image_model.cuda()]
+    head = MLP(const.image_encoder_output_size + 100, 40, 2, dropout=False).cuda()
     fusion = Concat().cuda()
 
     # train

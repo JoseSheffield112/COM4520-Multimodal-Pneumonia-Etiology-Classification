@@ -16,7 +16,7 @@ import pandas as pd
 import scripts.config as config
 
 # Point this to the resulting file of our preprocessing code (/output/im.pk)
-PATH_TO_DATA = 'C:\dev\darwin\datasetExploration\data\ourim.pk'
+PATH_TO_DATA = 'C:\dev\darwin\datasetExploration\data\ourimNotCheating.pk'
 
 def main():
 
@@ -24,8 +24,8 @@ def main():
         7, imputed_path=PATH_TO_DATA, model = const.Models.static)
  
 
-    encoders = [MLP(const.nr_static_features, 10, 10, dropout=False).cuda()]
-    head = MLP(10, 40, 2, dropout=False).cuda()
+    encoders = [MLP(const.nr_static_features, 50, 100, dropout=False).cuda()]
+    head = MLP(100, 40, 2, dropout=False).cuda()
     fusion = Concat().cuda()
 
     # train
@@ -44,7 +44,6 @@ def main():
 def outputStats(stats):
     # Outputs statistics to stats folder
     pd.DataFrame(stats['valid'],columns = ['epoch','acc','valloss']).to_csv(config.stats_root +'/static_val_perform_while_training.csv')
-
 
 if __name__ == '__main__':
     freeze_support()

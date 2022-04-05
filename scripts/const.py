@@ -1,8 +1,8 @@
 from enum import Enum
 
 nr_static_features = 12
-nr_timeseries_features = 3
-image_encoder_output_size = 1024
+nr_timeseries_features = 6
+image_encoder_output_size = 15
 
 class Models(Enum):
      static = 1
