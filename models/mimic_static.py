@@ -49,7 +49,6 @@ def runModel(nrRuns,outputRoot):
     
     pd.DataFrame(test_accuracies,columns=['acc']).to_csv(outputRoot + "/{}-test.csv".format(MODEL_NAME))
 
-
     #Write the arhitecture of the model to a file
     #TODO: Be more specific about the arhitecture. Write down the size of every layer, not just the sizes of the output layers of the encoders
     with open(outputRoot + "/model_arhitecture.txt", 'w') as f:
