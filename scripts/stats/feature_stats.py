@@ -30,11 +30,19 @@ if __name__=='__main__':
 
     print('Statistic | Viral | Bacterial | Both (conflicting etiologies) | Total')
     cohort = pd.read_csv(cohort_root + '/data.csv', header=0)
+
     viral = cohort[cohort.etiology==1.0]
     bacterial = cohort[cohort.etiology==2.0]
+
+    conflicts = pd.read_csv(cohort_root + '/data.csv', index_col=[0], usecols=['hadm_id', 'etiology'], header=0)
+    conflicts = conflicts.groupby(level=0).mean()
+    conflicts = conflicts[(conflicts.etiology != 1.0) & (conflicts.etiology != 2.0)]
+    csv_path = Path(output_root + '/conflicts.csv')  
+    csv_path.parent.mkdir(parents=True, exist_ok=True)
+    conflicts.to_csv(csv_path)
+
     print('Study count', len(viral), len(bacterial), '0', len(cohort), sep=' | ')
-    conflicts = len(viral.hadm_id.unique()) + len(bacterial.hadm_id.unique()) - len(cohort.hadm_id.unique())
-    print('Admission count', len(viral.hadm_id.unique()), len(bacterial.hadm_id.unique()), str(conflicts), len(cohort.hadm_id.unique()), sep=' | ')
+    print('Admission count', len(viral.hadm_id.unique()), len(bacterial.hadm_id.unique()), len(conflicts.index.unique()), len(cohort.hadm_id.unique()), sep=' | ')
 
     cohort = cohort[~cohort.subject_id.duplicated(keep='first')].drop(columns='subject_id').set_index('hadm_id')
     viral = viral[~viral.subject_id.duplicated(keep='first')]
