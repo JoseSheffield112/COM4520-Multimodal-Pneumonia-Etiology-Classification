@@ -18,7 +18,7 @@ from mimic_cxr.models.xrv_model import DenseNetXRVFeature
 import scripts.const as const
 import scripts.config as config
 
-def runModel(nrRuns,outputRoot):
+def runModel(nrRuns,outputRoot,nrEpochs):
     # Point this to the resulting file of our preprocessing code (/output/im.pk)
     PATH_TO_DATA = 'C:\dev\darwin\datasetExploration\data\ourimNotCheating.pk'
     MODEL_NAME = "image_static"
@@ -36,7 +36,7 @@ def runModel(nrRuns,outputRoot):
         fusion = Concat().cuda()
 
         # train
-        stats = train(encoders, fusion, head, traindata, validdata, 20, auprc=True)
+        stats = train(encoders, fusion, head, traindata, validdata, nrEpochs, auprc=True)
 
         # test
         print("Testing: ")
