@@ -1,7 +1,6 @@
 import sys
 import os
 import torch
-from torch import nn
 from multiprocessing import freeze_support
 
 sys.path.append(os.getcwd())
@@ -17,7 +16,7 @@ import scripts.config as config
 
 
 
-def runModel(nrRuns,outputRoot,nrEpochs,shuffle_split = True):
+def runModel(nrRuns,outputRoot,nrEpochs,shuffle_split = True,lr =0.001):
 
     MODEL_NAME = "static"
 
@@ -33,7 +32,7 @@ def runModel(nrRuns,outputRoot,nrEpochs,shuffle_split = True):
         fusion = Concat().cuda()
 
         # train
-        stats = train(encoders, fusion, head, traindata, validdata, nrEpochs, auprc=True)
+        stats = train(encoders, fusion, head, traindata, validdata, nrEpochs, auprc=True,lr = lr)
 
         # test
         print("Testing: ")

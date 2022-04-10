@@ -33,7 +33,9 @@ def main():
     parser.add_argument('-m', '--model',required= True, choices = ['static', 'image', 'image_static'])
     parser.add_argument('-o', '--rootDir',required = True, help = "Directory where the experiments are saved to.")
     parser.add_argument('-en', '--experimentName',required = True, help = "Name of the experiment. A folder with this name is created inside the root directory where all results will be output to.")
+    parser.add_argument('-lr', '--learningRate',default = '0.001', help = "Learning rate of the model while training.",type=float)
     
+
     args = parser.parse_args()
     
     rootExperimentDir = args.rootDir + "/{}".format(args.experimentName)
@@ -44,6 +46,8 @@ def main():
         print("The valiation/training/testing split will be randomly shuffled between each run. The shuffle will be stratified.\n")
     else:
         print("The valiation/training/testing split will be the same for every run.\n")
+
+    print("Learning rate: {}\n".format(str(args.learningRate)))
 
     if not os.path.exists(args.rootDir):
         os.makedirs(args.rootDir)
@@ -66,11 +70,11 @@ Are you sure you want to continue?: (y/n)".format(modelResultsDir))
             return -1
     
     if (args.model == "static"):
-        models.mimic_static.runModel(args.numRuns,modelResultsDir,args.numEpochs,args.shuffle)
+        models.mimic_static.runModel(args.numRuns,modelResultsDir,args.numEpochs,args.shuffle,args.learningRate)
     elif (args.model == "image"):
-        models.mimic_image.runModel(args.numRuns,modelResultsDir,args.numEpochs,args.shuffle)
+        models.mimic_image.runModel(args.numRuns,modelResultsDir,args.numEpochs,args.shuffle,args.learningRate)
     elif (args.model == "image_static"):
-        models.mimic_image_static.runModel(args.numRuns,modelResultsDir,args.numEpochs,args.shuffle)
+        models.mimic_image_static.runModel(args.numRuns,modelResultsDir,args.numEpochs,args.shuffle,args.learningRate)
     
     #Then I could make the code that calculates maximum, average and does the plots based on what model folder we have.
     #I would first go for each individual model folder, then for that

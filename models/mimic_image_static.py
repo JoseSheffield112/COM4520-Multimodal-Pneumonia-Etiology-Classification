@@ -18,7 +18,7 @@ from mimic_cxr.models.xrv_model import DenseNetXRVFeature
 import scripts.const as const
 import scripts.config as config
 
-def runModel(nrRuns,outputRoot,nrEpochs,shuffle_split = True):
+def runModel(nrRuns,outputRoot,nrEpochs,shuffle_split = True, lr = 0.001):
     # Point this to the resulting file of our preprocessing code (/output/im.pk)
     MODEL_NAME = "image_static"
 
@@ -35,7 +35,7 @@ def runModel(nrRuns,outputRoot,nrEpochs,shuffle_split = True):
         fusion = Concat().cuda()
 
         # train
-        stats = train(encoders, fusion, head, traindata, validdata, nrEpochs, auprc=True)
+        stats = train(encoders, fusion, head, traindata, validdata, nrEpochs, auprc=True,lr = lr)
 
         # test
         print("Testing: ")

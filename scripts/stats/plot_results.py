@@ -177,32 +177,56 @@ def main():
     outputDirRoot = args.outputDir
 
     #Only static model
-    (avg_points_static,average_testacc_static) = calculateAverageData(experimentDir,'static')
-    (max_points_static,max_testacc_static) = calculateMaxData(experimentDir,'static')
+    staticDir = experimentDir + "/{}".format('static')
+    if(exists(staticDir)):
+        (avg_points_static,average_testacc_static) = calculateAverageData(experimentDir,'static')
+        (max_points_static,max_testacc_static) = calculateMaxData(experimentDir,'static')
+        
+        plotXYPoints([avg_points_static],[],"Static model: Average accuracy on validation while training",outputDirRoot + '/static-avg-validation.png')
+        plotXYPoints([max_points_static],[],"Static model: Best run accuracy on validation while training",outputDirRoot + '/static-max-validation.png')
+        
+        barPlotModelTestAccuracies(experimentDir,'static',outputDirRoot + '/all-static-test_acc.png')    
     
-    plotXYPoints([avg_points_static],[],"Static model: Average accuracy on validation while training",outputDirRoot + '/static-avg-validation.png')
-    plotXYPoints([max_points_static],[],"Static model: Best run accuracy on validation while training",outputDirRoot + '/static-max-validation.png')
-    
+    #Only the image model
+    imageDir = experimentDir + "/{}".format('image')
+    if(exists(imageDir)):
+        (avg_points_image,average_testacc_image) = calculateAverageData(experimentDir,'image')
+        (max_points_image,max_testacc_image) = calculateMaxData(experimentDir,'image')
+        plotXYPoints([avg_points_image],[],"Image model: Average accuracy on validation while training",outputDirRoot + '/image-avg-validation.png')
+        plotXYPoints([max_points_image],[],"Image model: Best run accuracy on validation while training",outputDirRoot + '/image-max-validation.png')
+
+        barplot(['image'],[average_testacc_image],'Average test accuracy of the image model',outputDirRoot + '/image_avg_test_accuracy.png')
+        barplot(['image'],[max_testacc_image],'Test accuracy of the best run of the image model',outputDirRoot + '/image_max_test_accuracy.png')        
+
     #Image and static model
-    (avg_points_imagestatic,average_testacc_imagestatic) = calculateAverageData(experimentDir,'image_static')
-    (max_points_imagestatic,max_testacc_imagestatic) = calculateMaxData(experimentDir,'image_static')
+    image_staticDir = experimentDir + "/{}".format('image_static')
+    if(exists(image_staticDir)):
+        (avg_points_imagestatic,average_testacc_imagestatic) = calculateAverageData(experimentDir,'image_static')
+        (max_points_imagestatic,max_testacc_imagestatic) = calculateMaxData(experimentDir,'image_static')
 
-    plotXYPoints([avg_points_imagestatic],[],"Image_Static model: Average accuracy on validation while training",outputDirRoot + '/image_static-avg-validation.png')
-    plotXYPoints([max_points_imagestatic],[],"Image_Static model: Best run accuracy on validation while training",outputDirRoot + '/image_static-max-validation.png')
+        plotXYPoints([avg_points_imagestatic],[],"Image_Static model: Average accuracy on validation while training",outputDirRoot + '/image_static-avg-validation.png')
+        plotXYPoints([max_points_imagestatic],[],"Image_Static model: Best run accuracy on validation while training",outputDirRoot + '/image_static-max-validation.png')
+        
+        barPlotModelTestAccuracies(experimentDir,'image_static',outputDirRoot + '/all-image_static-test_acc.png')
+    
 
-    barplot(['static','image_static'],[average_testacc_static,average_testacc_imagestatic],'Average test accuracies of: image_static and static',outputDirRoot + '/compare-average-testacc-static-vs-image_static.png')
-    barplot(['static','image_static'],[max_testacc_static,max_testacc_imagestatic],'Test accuracies of the best runs of: image_static and static',outputDirRoot + '/compare-max-testacc-static-vs-image_static.png')
+    #Comparison of static and imageStatic: averages / max performance
+    if(exists(staticDir) and exists(image_staticDir)):
+        barplot(['static','image_static'],[average_testacc_static,average_testacc_imagestatic],'Average test accuracies of: image_static and static',outputDirRoot + '/compare-average-testacc-static-vs-image_static.png')
+        barplot(['static','image_static'],[max_testacc_static,max_testacc_imagestatic],'Test accuracies of the best runs of: image_static and static',outputDirRoot + '/compare-max-testacc-static-vs-image_static.png')
+        
+        plotXYPoints([avg_points_static,avg_points_imagestatic],['static','image_static'],"Comparison of average accuracy while training: static vs static_image",outputDirRoot + '/comparison-avg-validation-staticAndImageStatic.png')
+        plotXYPoints([max_points_static,max_points_imagestatic],['static','image_static'],"Comparison of best models accuracy while training: static vs static_image",outputDirRoot + '/comparison-max-validation-staticAndImageStatic.png')
 
-    #Comparison of averages / max performance
-    plotXYPoints([avg_points_static,avg_points_imagestatic],['static','image_static'],"Comparison of average accuracy while training: static vs static_image",outputDirRoot + '/comparison-avg-validation-staticAndImageStatic.png')
-    plotXYPoints([max_points_static,max_points_imagestatic],['static','image_static'],"Comparison of best models accuracy while training: static vs static_image",outputDirRoot + '/comparison-max-validation-staticAndImageStatic.png')
+    #Comparison of static and image: averages / max performance
+    if(exists(staticDir) and exists(imageDir)):
+        barplot(['static','image'],[average_testacc_static,average_testacc_image],'Average test accuracies of: static and image',outputDirRoot + '/compare-average-testacc-static-vs-image.png')
+        barplot(['static','image'],[max_testacc_static,max_testacc_image],'Test accuracies of the best runs of: static and image',outputDirRoot + '/compare-max-testacc-static-vs-image.png')
+        
+        plotXYPoints([avg_points_static,avg_points_image],['static','image'],"Comparison of average accuracy while training: static vs image",outputDirRoot + '/comparison-avg-validation-staticAndImage.png')
+        plotXYPoints([max_points_static,max_points_image],['static','image'],"Comparison of best models accuracy while training: static vs image",outputDirRoot + '/comparison-max-validation-staticAndImage.png')
 
-    barPlotModelTestAccuracies(experimentDir,'static',outputDirRoot + '/all-static-test_acc.png')
-    barPlotModelTestAccuracies(experimentDir,'image_static',outputDirRoot + '/all-image_static-test_acc.png')
-
-    # Images model
-    #TODO: Finish the only image modality
-
+    
 
 def legacyGraphs():
     #TODELTE. Keeping it for now for inspiration
