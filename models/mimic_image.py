@@ -16,18 +16,20 @@ from mimic_cxr.models.xrv_model import DenseNetXRVFeature
 import scripts.const as const
 import scripts.config as config
 
-def runModel(nrRuns,outputRoot,nrEpochs):
+def runModel(nrRuns,outputRoot,nrEpochs,shuffle_split = True):
     # Point this to the resulting file of our preprocessing code (/output/im.pk)
-    PATH_TO_DATA = 'C:\dev\darwin\datasetExploration\data\ourimNotCheating.pk'
+    PATH_TO_DATA = 'C:\dev\darwin\datasetExploration\data\ourim9April.pk'
     MODEL_NAME = "image"
 
     test_accuracies = []
     for i in range(nrRuns):
         #TOFIX: Currently this model only works with batchsize = 1. This is a temporary fix to a bug.
+        
         traindata, validdata, testdata = get_dataloader(
-            1, imputed_path=PATH_TO_DATA, model = const.Models.image)
+            1, imputed_path=PATH_TO_DATA, model = const.Models.image,shuffle_split = shuffle_split)
 
         image_model = DenseNetXRVFeature(pretrain_weights="densenet121-res224-all")
+        #image_model.load_state_dict(torch.load(config.pretrained_root + '/densenet_P_etiology.pth'))
         encoders = [image_model.cuda()]
         head = MLP(const.image_encoder_output_size, 40, 2, dropout=False).cuda()
         fusion = Concat().cuda()

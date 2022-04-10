@@ -75,18 +75,21 @@ def get_image_data():
     
     f = open(image_data_root + '/train.pk', 'rb')
     train_images = pickle.load(f)
+    print("Train image data length:",len(train_images))
     f.close()
     train_images = [(sample['hadm_id'].item(),sample['img'].detach().cpu().numpy()) for sample in train_images]
     train_images = pd.DataFrame(train_images,columns = ['hadm_id','image']).set_index('hadm_id')
 
     f = open(image_data_root + '/valid.pk', 'rb')
     valid_images = pickle.load(f)
+    print("Valid image data length:",len(valid_images))
     f.close()
     valid_images = [(sample['hadm_id'].item(),sample['img'].detach().cpu().numpy()) for sample in valid_images]
     valid_images = pd.DataFrame(valid_images,columns = ['hadm_id','image']).set_index('hadm_id')
 
     f = open(image_data_root + '/test.pk', 'rb')
     test_images = pickle.load(f)
+    print("Test image data length:",len(test_images))
     f.close()
     test_images = [(sample['hadm_id'].item(),sample['img'].detach().cpu().numpy()) for sample in test_images]
     test_images = pd.DataFrame(test_images, columns = ['hadm_id','image']).set_index('hadm_id')
@@ -102,11 +105,16 @@ def get_image_data():
 if __name__=='__main__':
     features = [feature for feature in get_individual_features() if type(feature) is type(pd.DataFrame())]
 
+    ageDF = features[0]
     features = pd.concat(features, axis=1)
 
-    features = features.dropna(thresh=4) # Keep records with {thresh} non-NaN columns, not including hadm_id
+
+
+    #features = features.dropna(thresh=2) # Keep records with {thresh} non-NaN columns, not including hadm_id
 
     features = preprocess(features)
+
+    print(features.shape)
 
     print('Saving data csv...')
     csv_path = Path(output_root + '/data.csv')  
@@ -121,6 +129,7 @@ if __name__=='__main__':
     print('Test set shape:', test_set.shape)
     test_table = pd.merge(features, test_set, left_index=True, right_index=True)
     test_table = pd.merge(test_table, images['test'], left_index=True, right_index=True)
+    print('Test table shape after merging:', test_table.shape)
 
     test_ts = format_timeseries(test_table)
     print('Timeseries shape:', test_ts.shape)
@@ -225,7 +234,7 @@ if __name__=='__main__':
             'timeseries': np.concatenate((test_ts, train_ts, valid_ts), axis=0),
             'static': np.concatenate((test_static, train_static, valid_static), axis=0),
             'image' : np.concatenate((test_images, train_images, valid_images), axis=0),
-            'labels': np.concatenate((test_labels, train_labels, valid_labels), axis=0),
+            'labels': np.concatenate((test_labels, train_labels, valid_labels), axis=0)
         }
         print('Cohort shapes:', *[cohort_array[arr].shape for arr in cohort_array])
 

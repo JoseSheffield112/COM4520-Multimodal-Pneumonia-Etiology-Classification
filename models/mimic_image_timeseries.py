@@ -18,8 +18,7 @@ from mimic_cxr.models.xrv_model import DenseNetXRVFeature
 import scripts.const as const
 import scripts.config as config
 
-# Point this to the resulting file of our preprocessing code (/output/im.pk)
-PATH_TO_DATA = 'C:\dev\darwin\datasetExploration\data\ourim.pk'
+
 
 def main():
 
@@ -27,7 +26,7 @@ def main():
     image_model.load_state_dict(torch.load(config.pretrained_root + '/densenet_P_etiology.pth'))
 
     traindata, validdata, testdata = get_dataloader(
-        1, imputed_path=PATH_TO_DATA, model = const.Models.timeseries_image)
+        1, imputed_path=config.impkPath, model = const.Models.timeseries_image)
 
 
     encoders = [GRU(const.nr_timeseries_features, 30, dropout=False, batch_first=True).cuda(), image_model.cuda()]

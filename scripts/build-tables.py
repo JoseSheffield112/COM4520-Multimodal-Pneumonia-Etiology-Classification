@@ -84,7 +84,7 @@ def build_patients(columns=None, samplesize=None, cohort=False):
     if cohort:
         print('Reading cohort...')
         cohort = pd.read_csv(cohort_root + '/data.csv', header=0, index_col=[0])
-        subject_ids = cohort.index.unique()
+        subject_ids = cohort.subject_id.unique()
         data = data[data.index.isin(subject_ids)]
     if samplesize:
         data = data.head(samplesize)

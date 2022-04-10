@@ -17,17 +17,15 @@ import scripts.config as config
 
 
 
-def runModel(nrRuns,outputRoot,nrEpochs):
+def runModel(nrRuns,outputRoot,nrEpochs,shuffle_split = True):
 
-    # Point this to the resulting file of our preprocessing code (/output/im.pk)
-    PATH_TO_DATA = 'C:\dev\darwin\datasetExploration\data\ourimNotCheating.pk'
     MODEL_NAME = "static"
 
     static_output_size = 100
     test_accuracies = []
     for i in range(nrRuns):
         traindata, validdata, testdata = get_dataloader(
-            7, imputed_path=PATH_TO_DATA, model = const.Models.static)
+            7, imputed_path=config.impkPath, model = const.Models.static,shuffle_split = shuffle_split)
     
 
         encoders = [MLP(const.nr_static_features, 50, static_output_size, dropout=False).cuda()]
@@ -60,4 +58,4 @@ def outputStats(stats,root,csvName):
 
 if __name__ == '__main__':
     freeze_support()
-    runModel(nrRuns = 1,outputRoot = config.stats_root)
+    runModel(nrRuns = 1,outputRoot = config.stats_root,nrEpochs = 20,shuffle_split=True)

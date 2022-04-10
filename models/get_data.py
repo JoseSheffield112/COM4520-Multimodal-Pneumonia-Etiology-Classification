@@ -1,3 +1,4 @@
+from sklearn.utils import shuffle
 from tqdm import tqdm
 from robustness.tabular_robust import add_tabular_noise
 from robustness.timeseries_robust import add_timeseries_noise
@@ -6,16 +7,16 @@ import os
 import numpy as np
 from torch.utils.data import DataLoader
 import scripts.const as const
-import random
 import pickle
-import copy
+from sklearn.model_selection import train_test_split
+
 
 
 #sys.path.append(os.path.dirname(os.path.dirname(os.getcwd())))
 
 
 
-def get_dataloader(batch_size=40, num_workers=1, train_shuffle=True, imputed_path='im.pk', model = const.Models.static_timeseries):
+def get_dataloader(batch_size=40, num_workers=1, train_shuffle=True, imputed_path='im.pk', model = const.Models.static_timeseries,shuffle_split = False):
     '''
     Gets the training,validation and testing dataloaders when pointed to our processed data.
 
@@ -27,6 +28,7 @@ def get_dataloader(batch_size=40, num_workers=1, train_shuffle=True, imputed_pat
     f = open(imputed_path, 'rb')
     datafile = pickle.load(f)
     f.close()
+
     '''
     X_t = datafile['ep_tdata']
     X_s = datafile['adm_features_all']
@@ -86,72 +88,102 @@ def get_dataloader(batch_size=40, num_workers=1, train_shuffle=True, imputed_pat
     datafile['test']['labels']  = datafile['test']['labels'] - 1 
     datafile['train']['labels'] = datafile['train']['labels'] - 1 
     datafile['valid']['labels'] = datafile['valid']['labels'] - 1
+    datafile['cohort']['labels'] = datafile['cohort']['labels'] - 1
     #le = len(y)
     #Make a tuple
-    
-    if (model == const.Models.static_timeseries_image):
-        le = len(datafile['valid']['labels'])
-        valids_data = [(datafile['valid']['static'][i],datafile['valid']['timeseries'][i],datafile['valid']['image'][i],datafile['valid']['labels'][i]) for i in range(le)]
+    if (shuffle_split == False):
+        if (model == const.Models.static_timeseries_image):
+            le = len(datafile['valid']['labels'])
+            valids_data = [(datafile['valid']['static'][i],datafile['valid']['timeseries'][i],datafile['valid']['image'][i],datafile['valid']['labels'][i]) for i in range(le)]
 
-        le = len(datafile['train']['labels'])
-        train_data = [(datafile['train']['static'][i],datafile['train']['timeseries'][i],datafile['train']['image'][i],datafile['train']['labels'][i]) for i in range(le)]
+            le = len(datafile['train']['labels'])
+            train_data = [(datafile['train']['static'][i],datafile['train']['timeseries'][i],datafile['train']['image'][i],datafile['train']['labels'][i]) for i in range(le)]
 
-        le = len(datafile['test']['labels'])
-        test_data = [(datafile['test']['static'][i],datafile['test']['timeseries'][i],datafile['test']['image'][i],datafile['test']['labels'][i]) for i in range(le)]
-    elif (model == const.Models.static_timeseries):
-        le = len(datafile['valid']['labels'])
-        valids_data = [(datafile['valid']['static'][i],datafile['valid']['timeseries'][i],datafile['valid']['labels'][i]) for i in range(le)]
+            le = len(datafile['test']['labels'])
+            test_data = [(datafile['test']['static'][i],datafile['test']['timeseries'][i],datafile['test']['image'][i],datafile['test']['labels'][i]) for i in range(le)]
+        elif (model == const.Models.static_timeseries):
+            le = len(datafile['valid']['labels'])
+            valids_data = [(datafile['valid']['static'][i],datafile['valid']['timeseries'][i],datafile['valid']['labels'][i]) for i in range(le)]
 
-        le = len(datafile['train']['labels'])
-        train_data = [(datafile['train']['static'][i],datafile['train']['timeseries'][i],datafile['train']['labels'][i]) for i in range(le)]
+            le = len(datafile['train']['labels'])
+            train_data = [(datafile['train']['static'][i],datafile['train']['timeseries'][i],datafile['train']['labels'][i]) for i in range(le)]
 
-        le = len(datafile['test']['labels'])
-        test_data = [(datafile['test']['static'][i],datafile['test']['timeseries'][i],datafile['test']['labels'][i]) for i in range(le)]
-    elif (model == const.Models.static_image):
-        le = len(datafile['valid']['labels'])
-        valids_data = [(datafile['valid']['static'][i],datafile['valid']['image'][i],datafile['valid']['labels'][i]) for i in range(le)]
+            le = len(datafile['test']['labels'])
+            test_data = [(datafile['test']['static'][i],datafile['test']['timeseries'][i],datafile['test']['labels'][i]) for i in range(le)]
+        elif (model == const.Models.static_image):
+            le = len(datafile['valid']['labels'])
+            valids_data = [(datafile['valid']['static'][i],datafile['valid']['image'][i],datafile['valid']['labels'][i]) for i in range(le)]
 
-        le = len(datafile['train']['labels'])
-        train_data = [(datafile['train']['static'][i],datafile['train']['image'][i],datafile['train']['labels'][i]) for i in range(le)]
+            le = len(datafile['train']['labels'])
+            train_data = [(datafile['train']['static'][i],datafile['train']['image'][i],datafile['train']['labels'][i]) for i in range(le)]
 
-        le = len(datafile['test']['labels'])
-        test_data = [(datafile['test']['static'][i],datafile['test']['image'][i],datafile['test']['labels'][i]) for i in range(le)]
-    elif (model == const.Models.timeseries_image):
-        le = len(datafile['valid']['labels'])
-        valids_data = [(datafile['valid']['timeseries'][i],datafile['valid']['image'][i],datafile['valid']['labels'][i]) for i in range(le)]
+            le = len(datafile['test']['labels'])
+            test_data = [(datafile['test']['static'][i],datafile['test']['image'][i],datafile['test']['labels'][i]) for i in range(le)]
+        elif (model == const.Models.timeseries_image):
+            le = len(datafile['valid']['labels'])
+            valids_data = [(datafile['valid']['timeseries'][i],datafile['valid']['image'][i],datafile['valid']['labels'][i]) for i in range(le)]
 
-        le = len(datafile['train']['labels'])
-        train_data = [(datafile['train']['timeseries'][i],datafile['train']['image'][i],datafile['train']['labels'][i]) for i in range(le)]
+            le = len(datafile['train']['labels'])
+            train_data = [(datafile['train']['timeseries'][i],datafile['train']['image'][i],datafile['train']['labels'][i]) for i in range(le)]
 
-        le = len(datafile['test']['labels'])
-        test_data = [(datafile['test']['timeseries'][i],datafile['test']['image'][i],datafile['test']['labels'][i]) for i in range(le)] 
-    elif (model == const.Models.static):
-        le = len(datafile['valid']['labels'])
-        valids_data = [(datafile['valid']['static'][i],datafile['valid']['labels'][i]) for i in range(le)]
+            le = len(datafile['test']['labels'])
+            test_data = [(datafile['test']['timeseries'][i],datafile['test']['image'][i],datafile['test']['labels'][i]) for i in range(le)] 
+        elif (model == const.Models.static):
+            le = len(datafile['valid']['labels'])
+            valids_data = [(datafile['valid']['static'][i],datafile['valid']['labels'][i]) for i in range(le)]
 
-        le = len(datafile['train']['labels'])
-        train_data = [(datafile['train']['static'][i],datafile['train']['labels'][i]) for i in range(le)]
+            le = len(datafile['train']['labels'])
+            train_data = [(datafile['train']['static'][i],datafile['train']['labels'][i]) for i in range(le)]
 
-        le = len(datafile['test']['labels'])
-        test_data = [(datafile['test']['static'][i],datafile['test']['labels'][i]) for i in range(le)]
-    elif (model == const.Models.timeseries):
-        le = len(datafile['valid']['labels'])
-        valids_data = [(datafile['valid']['timeseries'][i],datafile['valid']['labels'][i]) for i in range(le)]
+            le = len(datafile['test']['labels'])
+            test_data = [(datafile['test']['static'][i],datafile['test']['labels'][i]) for i in range(le)]
+        elif (model == const.Models.timeseries):
+            le = len(datafile['valid']['labels'])
+            valids_data = [(datafile['valid']['timeseries'][i],datafile['valid']['labels'][i]) for i in range(le)]
 
-        le = len(datafile['train']['labels'])
-        train_data = [(datafile['train']['timeseries'][i],datafile['train']['labels'][i]) for i in range(le)]
+            le = len(datafile['train']['labels'])
+            train_data = [(datafile['train']['timeseries'][i],datafile['train']['labels'][i]) for i in range(le)]
 
-        le = len(datafile['test']['labels'])
-        test_data = [(datafile['test']['timeseries'][i],datafile['test']['labels'][i]) for i in range(le)]
-    elif (model == const.Models.image):
-        le = len(datafile['valid']['labels'])
-        valids_data = [(datafile['valid']['image'][i],datafile['valid']['labels'][i]) for i in range(le)]
+            le = len(datafile['test']['labels'])
+            test_data = [(datafile['test']['timeseries'][i],datafile['test']['labels'][i]) for i in range(le)]
+        elif (model == const.Models.image):
+            le = len(datafile['valid']['labels'])
+            valids_data = [(datafile['valid']['image'][i],datafile['valid']['labels'][i]) for i in range(le)]
 
-        le = len(datafile['train']['labels'])
-        train_data = [(datafile['train']['image'][i],datafile['train']['labels'][i]) for i in range(le)]
+            le = len(datafile['train']['labels'])
+            train_data = [(datafile['train']['image'][i],datafile['train']['labels'][i]) for i in range(le)]
 
-        le = len(datafile['test']['labels'])
-        test_data = [(datafile['test']['image'][i],datafile['test']['labels'][i]) for i in range(le)]
+            le = len(datafile['test']['labels'])
+            test_data = [(datafile['test']['image'][i],datafile['test']['labels'][i]) for i in range(le)]
+    else:
+        le = len(datafile['cohort']['labels'])
+
+        #Order the tuple appropriately for the model you're running. The data in the tuple needs to be in the same order as the models are in the encoders list of the MMDL model.
+        if (model == const.Models.static_timeseries_image):
+            datasets = [(datafile['cohort']['static'][i], datafile['cohort']['timeseries'][i], datafile['cohort']['image'][i],datafile['cohort']['labels'][i]) for i in range(le)]
+        elif(model == const.Models.static_timeseries):
+            datasets = [(datafile['cohort']['static'][i], datafile['cohort']['timeseries'][i],datafile['cohort']['labels'][i]) for i in range(le)]
+        elif(model == const.Models.static_image):
+            datasets = [(datafile['cohort']['static'][i], datafile['cohort']['image'][i],datafile['cohort']['labels'][i]) for i in range(le)]
+        elif(model == const.Models.timeseries_image):
+            datasets = [(datafile['cohort']['timeseries'][i], datafile['cohort']['image'][i],datafile['cohort']['labels'][i]) for i in range(le)]
+        elif(model == const.Models.static):
+            datasets = [(datafile['cohort']['static'][i],datafile['cohort']['labels'][i]) for i in range(le)]
+        elif(model == const.Models.timeseries):
+            datasets = [(datafile['cohort']['timeseries'][i],datafile['cohort']['labels'][i]) for i in range(le)]
+        elif(model == const.Models.image):
+            datasets = [(datafile['cohort']['image'][i],datafile['cohort']['labels'][i]) for i in range(le)]
+
+        
+        #Create the splits by doing a random shuffle. We can ignore the y values for the most part since the tuple has the labels inside it either way
+        X_train, X_test_val, y_train, y_test_val = train_test_split(datasets, datafile['cohort']['labels'], test_size=0.20, random_state=None,stratify = datafile['cohort']['labels'])
+
+        X_val, X_test, y_val, y_test = train_test_split(X_test_val, y_test_val, test_size=0.50, random_state=None,stratify = y_test_val)
+        
+        train_data = X_train
+        valids_data = X_val
+        test_data = X_test
+
 
 
     

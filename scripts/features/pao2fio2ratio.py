@@ -18,8 +18,11 @@ postgresfunctions_sqlfile = 'mimic-iv/concepts/postgres/postgres-functions.sql'
 
 # Set this to True if you've already created the bg table (Blood and gasses table).
 BG_EXISTS = True
+skip = True
 
 def main():
+    if skip:
+        return
     conn = getConnection()
     cur = conn.cursor()
     

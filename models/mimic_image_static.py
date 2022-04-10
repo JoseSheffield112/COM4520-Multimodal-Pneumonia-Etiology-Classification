@@ -18,9 +18,8 @@ from mimic_cxr.models.xrv_model import DenseNetXRVFeature
 import scripts.const as const
 import scripts.config as config
 
-def runModel(nrRuns,outputRoot,nrEpochs):
+def runModel(nrRuns,outputRoot,nrEpochs,shuffle_split = True):
     # Point this to the resulting file of our preprocessing code (/output/im.pk)
-    PATH_TO_DATA = 'C:\dev\darwin\datasetExploration\data\ourimNotCheating.pk'
     MODEL_NAME = "image_static"
 
     static_output_size = 100
@@ -28,7 +27,7 @@ def runModel(nrRuns,outputRoot,nrEpochs):
     for i in range(nrRuns):
         #TOFIX: Currently this model only works with batchsize = 1. This is a temporary fix to a bug.
         traindata, validdata, testdata = get_dataloader(
-            1, imputed_path=PATH_TO_DATA, model = const.Models.static_image)
+            1, imputed_path=config.impkPath, model = const.Models.static_image,shuffle_split = shuffle_split)
 
         image_model = DenseNetXRVFeature(pretrain_weights="densenet121-res224-all")
         encoders = [MLP(const.nr_static_features, 50, static_output_size, dropout=False).cuda(),image_model.cuda()]

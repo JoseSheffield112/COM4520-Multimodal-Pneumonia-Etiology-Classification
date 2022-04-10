@@ -207,7 +207,6 @@ def main():
 def legacyGraphs():
     #TODELTE. Keeping it for now for inspiration
     #Accuracy on validation data while training for each individual model
-    #TODO: Update this
     inputCsvPath = config.stats_root +'/image_static_timeseries_val_perform_while_training.csv'
     if(exists(inputCsvPath)):
         plotValidationAccWhileTraining([inputCsvPath],

@@ -13,13 +13,16 @@ def main():
     iter_csv = pd.read_csv(origin_root + '/core/admissions.csv', header=0, index_col=[0], iterator=True, chunksize=1000, usecols=columns)
     admissions = pd.concat([chunk for chunk in iter_csv])
 
+
     print('Reading patients...')
     columns = ['subject_id', 'anchor_age']
     iter_csv = pd.read_csv(origin_root + '/core/patients.csv', header=0, index_col=[0], iterator=True, chunksize=1000, usecols=columns)
     patients = pd.concat([chunk for chunk in iter_csv])
-    
+
     data = pd.merge(admissions, patients, left_index=True, right_index=True)
+
     data = data.set_index('hadm_id')
+
     data.columns = ['age']
     
     if save_intermediates:

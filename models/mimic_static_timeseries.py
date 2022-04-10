@@ -15,13 +15,12 @@ from training_structures.Supervised_Learning import train, test # noqa
 
 import scripts.const as const
 
-# Point this to the resulting file of our preprocessing code (/output/im.pk)
-PATH_TO_DATA = 'C:\dev\darwin\datasetExploration\data\ourim.pk'
+
 
 def main():
 
     traindata, validdata, testdata = get_dataloader(
-        7, imputed_path=PATH_TO_DATA, model = const.Models.static_timeseries)
+        7, imputed_path=config.impkPath, model = const.Models.static_timeseries)
  
 
     encoders = [MLP(const.nr_static_features, 10, 10, dropout=False).cuda(), GRU(
