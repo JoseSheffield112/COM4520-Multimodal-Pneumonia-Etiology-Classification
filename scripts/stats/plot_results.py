@@ -206,6 +206,8 @@ def main():
 
         plotXYPoints([avg_points_imagestatic],[],"Image_Static model: Average accuracy on validation while training",outputDirRoot + '/image_static-avg-validation.png')
         plotXYPoints([max_points_imagestatic],[],"Image_Static model: Best run accuracy on validation while training",outputDirRoot + '/image_static-max-validation.png')
+
+        barplot(['image_static'],[average_testacc_imagestatic],'Average test accuracy of: image_static',outputDirRoot + '/average-testacc-image_static.png')
         
         barPlotModelTestAccuracies(experimentDir,'image_static',outputDirRoot + '/all-image_static-test_acc.png')
     

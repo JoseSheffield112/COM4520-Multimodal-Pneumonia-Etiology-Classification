@@ -18,7 +18,7 @@ from mimic_cxr.models.xrv_model import DenseNetXRVFeature
 import scripts.const as const
 import scripts.config as config
 
-def runModel(nrRuns,outputRoot,nrEpochs,shuffle_split = True, lr = 0.001):
+def runModel(nrRuns,outputRoot,nrEpochs,shuffle_split = True, lr = 0.001,dropout=False,dropoutP=0.1,optimizer=torch.optim.RMSprop,earlyStop = True):
     # Point this to the resulting file of our preprocessing code (/output/im.pk)
     MODEL_NAME = "image_static"
 
@@ -30,12 +30,12 @@ def runModel(nrRuns,outputRoot,nrEpochs,shuffle_split = True, lr = 0.001):
             1, imputed_path=config.impkPath, model = const.Models.static_image,shuffle_split = shuffle_split)
 
         image_model = DenseNetXRVFeature(pretrain_weights="densenet121-res224-all")
-        encoders = [MLP(const.nr_static_features, 50, static_output_size, dropout=False).cuda(),image_model.cuda()]
+        encoders = [MLP(const.nr_static_features, 50, static_output_size, dropout=dropout,dropoutp=dropoutP).cuda(),image_model.cuda()]
         head = MLP(const.image_encoder_output_size + static_output_size, 40, 2, dropout=False).cuda()
         fusion = Concat().cuda()
 
         # train
-        stats = train(encoders, fusion, head, traindata, validdata, nrEpochs, auprc=True,lr = lr)
+        stats = train(encoders, fusion, head, traindata, validdata, nrEpochs, auprc=True,lr = lr,early_stop=earlyStop,optimtype=optimizer)
 
         # test
         print("Testing: ")

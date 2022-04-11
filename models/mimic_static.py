@@ -16,7 +16,7 @@ import scripts.config as config
 
 
 
-def runModel(nrRuns,outputRoot,nrEpochs,shuffle_split = True,lr =0.001):
+def runModel(nrRuns,outputRoot,nrEpochs,shuffle_split = True,lr =0.001,dropout=False,dropoutP=0.1,optimizer=torch.optim.RMSprop,earlyStop = True):
 
     MODEL_NAME = "static"
 
@@ -27,12 +27,12 @@ def runModel(nrRuns,outputRoot,nrEpochs,shuffle_split = True,lr =0.001):
             7, imputed_path=config.impkPath, model = const.Models.static,shuffle_split = shuffle_split)
     
 
-        encoders = [MLP(const.nr_static_features, 50, static_output_size, dropout=False).cuda()]
+        encoders = [MLP(indim = const.nr_static_features, hiddim = 50, outdim = static_output_size, dropout=dropout,dropoutp=dropoutP).cuda()]
         head = MLP(static_output_size, 40, 2, dropout=False).cuda()
         fusion = Concat().cuda()
 
         # train
-        stats = train(encoders, fusion, head, traindata, validdata, nrEpochs, auprc=True,lr = lr)
+        stats = train(encoders, fusion, head, traindata, validdata, nrEpochs, auprc=True,lr = lr,early_stop=earlyStop,optimtype=optimizer)
 
         # test
         print("Testing: ")

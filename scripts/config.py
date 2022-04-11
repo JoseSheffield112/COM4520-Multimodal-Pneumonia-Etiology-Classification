@@ -4,7 +4,7 @@
 save_npz = True
 low_memory = False
 save_intermediates = True
-overwrite_cache = False
+overwrite_cache = True
 
 #TODO: Add some comments here explaining what each path is for.
 in_data_root = 'C:/dev/darwin/datasets/mimic-iv-1.0'
@@ -35,4 +35,4 @@ mimic_code_root = 'C:/dev/darwin/mimic-code'
 
 #CONFIGS YOU NEED TO RUN THE MODELS:
 pretrained_root = 'pretrained'
-impkPath = 'C:\dev\darwin\datasetExploration\data\ourim9April.pk'
+impkPath = 'C:\dev\darwin\datasetExploration\data\im_w_icd10.pk'
