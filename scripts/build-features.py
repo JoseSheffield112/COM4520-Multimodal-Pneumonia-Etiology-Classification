@@ -47,12 +47,12 @@ def get_individual_features():
 def preprocess(table):
     for column in table.columns:
         print('Preprocessing', column, end='... ')
-        #try:
+        try:
         #print(table[column].values)
-        table[column] = import_module('.' + column, 'preprocessing').main(table[column].values)
-        print('success!')
-        #except Exception as e:
-        #   print('failed:', e)
+            table[column] = import_module('.' + column, 'preprocessing').main(table[column].values)
+            print('success!')
+        except Exception as e:
+           print('failed:', e)
     print()
     return table
 
