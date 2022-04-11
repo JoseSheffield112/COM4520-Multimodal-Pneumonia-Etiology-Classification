@@ -22,7 +22,7 @@ def main():
 
     ## Intermediate results
     if save_intermediates:
-        intermediate_path = Path(intermediate_root + '/whitebloodcells.csv')  
+        intermediate_path = Path(intermediate_root + '/whitebloodcells_min.csv')  
         intermediate_path.parent.mkdir(parents=True, exist_ok=True) 
         data.to_csv(intermediate_path)
         print('Saved whitebloodcells!')
@@ -53,12 +53,12 @@ def process_admissions(chunk):
                     minimum = value
         ## Final array
         if np.isnan(float(minimum)):
-            first['whitebloodcells'] = np.nan
+            first['whitebloodcells_min'] = np.nan
         else:
-            first['whitebloodcells'] = minimum
+            first['whitebloodcells_min'] = minimum
         return first
 
 if __name__ == '__main__':
     print('Saving whitebloodcells feature...')
-    main().to_pickle(feature_root + '/whitebloodcells.pickle')
+    main().to_pickle(feature_root + '/whitebloodcells_min.pickle')
     print('Saved whitebloodcells!\n')
