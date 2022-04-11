@@ -31,6 +31,8 @@ def main():
     parser.add_argument('-nr', '--numRuns', default='5',type=int)
     parser.add_argument('-ne', '--numEpochs', default='20',type=int)
     parser.add_argument('-sf', '--shuffle',default = 'True', choices = [True, False],type=t_or_f,help = "Whether to use a pre-determined split or to randomly shuffle the split between each run.")
+    parser.add_argument('-care', '--careful',default = 'True', choices = [True, False],type=t_or_f,help = "Whether to have the script ask you if you're sure if you want to \
+overwrite the experiments folder. Turning this off helps if you want to run the tests via a bash or batch script")
     parser.add_argument('-m', '--model',required= True, choices = ['static', 'image', 'image_static'])
     parser.add_argument('-o', '--rootDir',required = True, help = "Directory where the experiments are saved to.")
     parser.add_argument('-en', '--experimentName',required = True, help = "Name of the experiment. A folder with this name is created inside the root directory where all results will be output to.")
@@ -38,6 +40,7 @@ def main():
     parser.add_argument('-dp', '--dropOutP',default = '0', help = "Dropout percentage of the static model while training.",type=float)
     parser.add_argument('-opt', '--optimizer',default = 'RMSprop', choices = ['adam', 'RMSprop'], help = "Optimizer to use while training")
     parser.add_argument('-estp', '--earlyStop',default = 'True', choices = [True, False],type=t_or_f,help = "Whether to stop after 7 epochs where validation accuracy did not improve.")
+    
 
     args = parser.parse_args()
     
@@ -78,17 +81,23 @@ def main():
         os.makedirs(modelResultsDir)
     else:
         #If the directory containing results exists, delete it.
-        #A little safeguard in place just in case the user accidentally somehow inputted the wrong outputdir. And the results directory ends up being a valuable directory in their system. 
-        answer = 'asdgsd'
-        while (not (answer == 'y' or answer == 'n')):
-            answer = input("The script is about to delete the {} folder and everything inside it in order to replace it with the experiment results.\n\
-Are you sure you want to continue?: (y/n)".format(modelResultsDir))
-        if (answer == 'y'):
+        if (args.careful == False):
             shutil.rmtree(modelResultsDir)
             os.makedirs(modelResultsDir)
         else:
-            print("You've terminated the script")
-            return -1
+            #A little safeguard in place just in case the user accidentally somehow inputted the wrong outputdir. And the results directory ends up being a valuable directory in their system. 
+            answer = 'asdgsd'
+            while (not (answer == 'y' or answer == 'n')):
+                answer = input("The script is about to delete the {} folder and everything inside it in order to replace it with the experiment results.\n\
+Are you sure you want to continue?: (y/n)".format(modelResultsDir))
+            if (answer == 'y'):
+                shutil.rmtree(modelResultsDir)
+                os.makedirs(modelResultsDir)
+            else:
+                print("You've terminated the script")
+                return -1
+
+    
     # Print out the arguments used to the script in the experminet folder
     with open(modelResultsDir + '/arguments.txt', 'w') as f:
         for arg in sys.argv:
