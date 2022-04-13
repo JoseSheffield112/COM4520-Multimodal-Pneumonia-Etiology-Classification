@@ -19,6 +19,7 @@ def get_dataloader(batch_size=40, num_workers=1, train_shuffle=True, imputed_pat
     '''
     * kfold : If >= 2 then k-fold cross validation is performed. This function will then instead return a list of tuples containing kfold splits of training and validation. 
     And a test dataloader as normal. (Technically a test dict containing a dataloader under the 'timeseries' key. Just for the Multibench test function compatibility)
+    * augment_images: If true, then every time a sample is pulled from the train dataloader, the images will be augmented (rotated, scaled) randomly. This is supposed to help with the model's ability to generalize.
 
     Gets the training,validation and testing dataloaders when pointed to our processed data.
     '''
@@ -38,20 +39,6 @@ def get_dataloader(batch_size=40, num_workers=1, train_shuffle=True, imputed_pat
     datafile = pickle.load(f)
     f.close()
 
-
-    #some_image = datafile['cohort']['image'][0]
-
-    #print("Before squeeze: ",some_image)
-    #some_image = np.squeeze(some_image, axis=0)
-    #print("After squeeze: ",some_image)
-    #transformed_image = transform(some_image)
-    #rint("After transform: ",some_image)
-    #Re-adding the dimension
-    #some_image = np.array(some_image)
-    #print("After adding to list: ",some_image)
-
-
-
     #Converting labels from 1 - 2 to binary
     datafile['test']['labels']  = datafile['test']['labels'] - 1 
     datafile['train']['labels'] = datafile['train']['labels'] - 1 
@@ -68,7 +55,7 @@ def get_dataloader(batch_size=40, num_workers=1, train_shuffle=True, imputed_pat
         #Create the splits by doing a random shuffle. We can ignore the y values for the most part since the tuple has the labels inside it either way
         X_train, X_test_val, y_train, y_test_val = train_test_split(datasets, datafile['cohort']['labels'], test_size=0.40, random_state=None,stratify = datafile['cohort']['labels'])
 
-        X_val, X_test, y_val, y_test = train_test_split(X_test_val, y_test_val, test_size=0.66, random_state=None,stratify = y_test_val)
+        X_val, X_test, y_val, y_test = train_test_split(X_test_val, y_test_val, test_size=0.5, random_state=None,stratify = y_test_val)
         
         train_data = X_train
         valids_data = X_val
@@ -114,10 +101,7 @@ def get_dataloader(batch_size=40, num_workers=1, train_shuffle=True, imputed_pat
         trains = DataLoader(darwin_multimodal_dataset(train_data,imgidx,transform,data_aug), shuffle=train_shuffle,
                             num_workers=num_workers, batch_size=batch_size)
 
-
-        #testing code:
-        for sample in trains:
-            print(sample)                            
+                           
         tests = dict()
         tests['timeseries'] = []
         tests['timeseries'].append(DataLoader(test_data, shuffle=False,

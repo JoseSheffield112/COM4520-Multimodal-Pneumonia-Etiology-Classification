@@ -21,7 +21,7 @@ class darwin_multimodal_dataset(torch.utils.data.Dataset):
     
     def __getitem__(self,idx):
         
-        sample = self.data[idx]
+        sample = list(self.data[idx])
         if (self.transform is not None) and (self.imageidx != -1) :
             sample[self.imageidx] = self.transform(sample[self.imageidx])
 
@@ -29,5 +29,5 @@ class darwin_multimodal_dataset(torch.utils.data.Dataset):
             sample[self.imageidx] = self.data_aug(sample[self.imageidx])
             
 
-        return sample
+        return tuple(sample)
 
