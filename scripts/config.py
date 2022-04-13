@@ -1,6 +1,7 @@
 # Run on your machine to ignore remote changes so that you don't get annoyed every time someone changes a file:
 # git update-index --skip-worktree scripts/config.py
 
+#CONFIGS YOU NEED TO PREPROCESS (A lot of these are relative paths, not all need to be tweaked)
 save_npz = True
 low_memory = False
 save_intermediates = True

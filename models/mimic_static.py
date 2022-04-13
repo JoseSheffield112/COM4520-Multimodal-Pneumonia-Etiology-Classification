@@ -14,40 +14,79 @@ import scripts.const as const
 import pandas as pd
 import scripts.config as config
 
+def get_encoders_head_fusion(static_output_size,dropout,dropoutP):
+    encoders = [MLP(indim = const.nr_static_features, hiddim = 50, outdim = static_output_size, dropout=dropout,dropoutp=dropoutP).cuda()]
+    head = MLP(static_output_size, 40, 2, dropout=False).cuda()
+    fusion = Concat().cuda()
+    return encoders,head,fusion
 
 
-def runModel(nrRuns,outputRoot,nrEpochs,shuffle_split = True,lr =0.001,dropout=False,dropoutP=0.1,optimizer=torch.optim.RMSprop,earlyStop = True):
+def runModel(nrRuns,outputRoot,nrEpochs,shuffle_split = True,lr =0.001,dropout=False,dropoutP=0.1,optimizer=torch.optim.RMSprop,earlyStop = True,kfold = 0):
 
     MODEL_NAME = "static"
-
     static_output_size = 100
-    test_accuracies = []
-    for i in range(nrRuns):
-        traindata, validdata, testdata = get_dataloader(
-            7, imputed_path=config.impkPath, model = const.Models.static,shuffle_split = shuffle_split)
+
+    if (kfold < 2):
+        test_accuracies = []
+        for i in range(nrRuns):
+            traindata, validdata, testdata = get_dataloader(
+                7, imputed_path=config.impkPath, model = const.Models.static,shuffle_split = shuffle_split)
+        
+            encoders, head, fusion = get_encoders_head_fusion(static_output_size,dropout,dropoutP)
+
+            # train
+            stats = train(encoders, fusion, head, traindata, validdata, nrEpochs, auprc=True,lr = lr,early_stop=earlyStop,optimtype=optimizer)
+
+            # test
+            print("Testing: ")
+            model = torch.load('best.pt').cuda()
+
+            rob_curve = test(model, testdata, dataset='mimic 7', auprc=True)
+            test_acc = rob_curve['Accuracy'][0] 
+            test_accuracies.append(test_acc)
+
+            outputStats(stats,outputRoot, "/run-{}-{}-validation.csv".format(str(i), MODEL_NAME))
+        #Output test accuracy
+        pd.DataFrame(test_accuracies,columns=['acc']).to_csv(outputRoot + "/{}-test.csv".format(MODEL_NAME))
     
+    else:# Perform k cross validation
+        avg_val_accuracies = []
+        for i in range(nrRuns):
+            train_val_splits, testdata = get_dataloader(
+                7, imputed_path=config.impkPath, model = const.Models.static,shuffle_split = shuffle_split,kfold=kfold)
+            bestModel = None
+            bestbestAcc = 0
+            sumAcc = 0
+            allAcc = []
+            for s_i,(traindata,validdata) in enumerate(train_val_splits):
 
-        encoders = [MLP(indim = const.nr_static_features, hiddim = 50, outdim = static_output_size, dropout=dropout,dropoutp=dropoutP).cuda()]
-        head = MLP(static_output_size, 40, 2, dropout=False).cuda()
-        fusion = Concat().cuda()
+                encoders, head, fusion = get_encoders_head_fusion(static_output_size,dropout,dropoutP)
+                # train
+                stats,model,bestacc = train(encoders, fusion, head, traindata, validdata, nrEpochs, auprc=True,lr = lr,early_stop=earlyStop,optimtype=optimizer)
+                allAcc.append(bestacc)
+                if (bestbestAcc < bestacc):
+                    bestModel = model
+                    bestbestAcc = bestacc
+                sumAcc += bestacc
+                print("Best accuracy on validation for this split: {}\n".format(bestacc))
 
-        # train
-        stats = train(encoders, fusion, head, traindata, validdata, nrEpochs, auprc=True,lr = lr,early_stop=earlyStop,optimtype=optimizer)
+                # Output results of this split
+                if not os.path.exists(outputRoot + "/run-{}".format(i)):
+                    os.makedirs(outputRoot + "/run-{}".format(i))
+                outputStats(stats,outputRoot, "/run-{}/split-{}-{}-validation.csv".format(str(i),s_i, MODEL_NAME))
+            
+            avgAcc = sumAcc / len(train_val_splits)
+            avg_val_accuracies.append(avgAcc)
+            #Output all the best accuracies of each split to a csv file for inspection. I assume mostly to see variance 
+            pd.DataFrame(allAcc,columns=['acc']).to_csv(outputRoot + "/run-{}/{}-bestacc-all-splits.csv".format(str(i), MODEL_NAME))
+            #Don't test the model on the testing set anymore. Just print the average of the peak accuracies of each split:
+            print("Average of best accuracy on validation of each split: {}\n".format(avgAcc))
+        
+        #Output average val accuracies
+        pd.DataFrame(avg_val_accuracies,columns=['acc']).to_csv(outputRoot + "/{}-kfold-avgvalidacc.csv".format(MODEL_NAME))
 
-        # test
-        print("Testing: ")
-        model = torch.load('best.pt').cuda()
-
-        rob_curve = test(model, testdata, dataset='mimic 7', auprc=True)
-        test_acc = rob_curve['Accuracy'][0] 
-        test_accuracies.append(test_acc)
-
-        outputStats(stats,outputRoot, "/run-{}-{}-validation.csv".format(str(i), MODEL_NAME))
-    
-    pd.DataFrame(test_accuracies,columns=['acc']).to_csv(outputRoot + "/{}-test.csv".format(MODEL_NAME))
 
     #Write the arhitecture of the model to a file
-    #TODO: Be more specific about the arhitecture. Write down the size of every layer, not just the sizes of the output layers of the encoders
     with open(outputRoot + "/model_arhitecture.txt", 'w') as f:
         f.write('Static output layer: ' + str(static_output_size) + '\n')
 
@@ -57,4 +96,4 @@ def outputStats(stats,root,csvName):
 
 if __name__ == '__main__':
     freeze_support()
-    runModel(nrRuns = 1,outputRoot = config.stats_root,nrEpochs = 20,shuffle_split=True)
+    runModel(nrRuns = 1,outputRoot = config.stats_root,nrEpochs = 20,kfold=5)

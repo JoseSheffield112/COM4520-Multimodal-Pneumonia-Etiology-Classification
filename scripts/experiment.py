@@ -7,6 +7,7 @@ import models.mimic_image
 import models.mimic_static
 import models.mimic_image_static
 import torch
+import scripts.config as config
 
 # Script used to perform an experiment
 
@@ -38,6 +39,7 @@ overwrite the experiments folder. Turning this off helps if you want to run the 
     parser.add_argument('-en', '--experimentName',required = True, help = "Name of the experiment. A folder with this name is created inside the root directory where all results will be output to.")
     parser.add_argument('-lr', '--learningRate',default = '0.001', help = "Learning rate of the model while training.",type=float)
     parser.add_argument('-dp', '--dropOutP',default = '0', help = "Dropout percentage of the static model while training.",type=float)
+    parser.add_argument('-kf', '--kFold',default = '0', help = "Whether to perform kfold cross validation. Number of folds to do. If < 2, then kfold cross validation won't be performed",type=float)
     parser.add_argument('-opt', '--optimizer',default = 'RMSprop', choices = ['adam', 'RMSprop'], help = "Optimizer to use while training")
     parser.add_argument('-estp', '--earlyStop',default = 'True', choices = [True, False],type=t_or_f,help = "Whether to stop after 7 epochs where validation accuracy did not improve.")
     
@@ -102,16 +104,17 @@ Are you sure you want to continue?: (y/n)".format(modelResultsDir))
     with open(modelResultsDir + '/arguments.txt', 'w') as f:
         for arg in sys.argv:
             f.write(arg + ' ')
+        f.write("\n Impk path : {}\n".format(config.impkPath))
 
 
     # Run the model
 
     if (args.model == "static"):
-        models.mimic_static.runModel(args.numRuns,modelResultsDir,args.numEpochs,args.shuffle,args.learningRate,args.dropOutP != 0.0,args.dropOutP,optimizer=optimizer,earlyStop=args.earlyStop)
+        models.mimic_static.runModel(args.numRuns,modelResultsDir,args.numEpochs,args.shuffle,args.learningRate,args.dropOutP != 0.0,args.dropOutP,optimizer=optimizer,earlyStop=args.earlyStop,kfold=args.kFold)
     elif (args.model == "image"):
-        models.mimic_image.runModel(args.numRuns,modelResultsDir,args.numEpochs,args.shuffle,args.learningRate,optimizer=optimizer,earlyStop=args.earlyStop)
+        models.mimic_image.runModel(args.numRuns,modelResultsDir,args.numEpochs,args.shuffle,args.learningRate,optimizer=optimizer,earlyStop=args.earlyStop,kfold=args.kFold)
     elif (args.model == "image_static"):
-        models.mimic_image_static.runModel(args.numRuns,modelResultsDir,args.numEpochs,args.shuffle,args.learningRate,args.dropOutP != 0.0,args.dropOutP,optimizer=optimizer,earlyStop=args.earlyStop)
+        models.mimic_image_static.runModel(args.numRuns,modelResultsDir,args.numEpochs,args.shuffle,args.learningRate,args.dropOutP != 0.0,args.dropOutP,optimizer=optimizer,earlyStop=args.earlyStop,kfold=args.kFold)
 
 
 
