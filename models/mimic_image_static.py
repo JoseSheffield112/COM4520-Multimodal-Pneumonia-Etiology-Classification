@@ -40,7 +40,7 @@ def runModel(nrRuns,outputRoot,nrEpochs,shuffle_split = True,lr =0.001,dropout=F
             encoders, head, fusion = get_encoders_head_fusion(static_output_size,dropout,dropoutP)
 
             # train
-            stats = train(encoders, fusion, head, traindata, validdata, nrEpochs, auprc=True,lr = lr,early_stop=earlyStop,optimtype=optimizer)
+            stats,model,bestacc = train(encoders, fusion, head, traindata, validdata, nrEpochs, auprc=True,lr = lr,early_stop=earlyStop,optimtype=optimizer)
 
             # test
             print("Testing: ")
