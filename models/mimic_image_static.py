@@ -26,7 +26,7 @@ def get_encoders_head_fusion(static_output_size,dropout,dropoutP):
     return encoders,head,fusion
 
 
-def runModel(nrRuns,outputRoot,nrEpochs,shuffle_split = True,lr =0.001,dropout=False,dropoutP=0.1,optimizer=torch.optim.RMSprop,earlyStop = True,kfold = 0):
+def runModel(nrRuns,outputRoot,nrEpochs,shuffle_split = True,lr =0.001,dropout=False,dropoutP=0.1,optimizer=torch.optim.RMSprop,earlyStop = True,kfold = 0,augmentImages = True,batch_size = 3):
 
     MODEL_NAME = "image_static"
     static_output_size = 100
@@ -35,7 +35,7 @@ def runModel(nrRuns,outputRoot,nrEpochs,shuffle_split = True,lr =0.001,dropout=F
         test_accuracies = []
         for i in range(nrRuns):
             traindata, validdata, testdata = get_dataloader(
-                1, imputed_path=config.impkPath, model = const.Models.static_image,shuffle_split = shuffle_split)
+                batch_size, imputed_path=config.impkPath, model = const.Models.static_image,shuffle_split = shuffle_split,augmentImages=augmentImages)
         
             encoders, head, fusion = get_encoders_head_fusion(static_output_size,dropout,dropoutP)
 
@@ -58,7 +58,7 @@ def runModel(nrRuns,outputRoot,nrEpochs,shuffle_split = True,lr =0.001,dropout=F
         avg_val_accuracies = []
         for i in range(nrRuns):
             train_val_splits, testdata = get_dataloader(
-                1, imputed_path=config.impkPath, model = const.Models.static_image,shuffle_split = shuffle_split,kfold=kfold)
+                batch_size, imputed_path=config.impkPath, model = const.Models.static_image,shuffle_split = shuffle_split,kfold=kfold,augmentImages=augmentImages)
             bestModel = None
             bestbestAcc = 0
             sumAcc = 0

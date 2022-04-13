@@ -31,6 +31,7 @@ def main():
     parser = ArgumentParser(prog='experiment.py')
     parser.add_argument('-nr', '--numRuns', default='5',type=int)
     parser.add_argument('-ne', '--numEpochs', default='20',type=int)
+    parser.add_argument('-bs', '--batchSize', default='3',type=int,help = "Batch size while training")
     parser.add_argument('-sf', '--shuffle',default = 'True', choices = [True, False],type=t_or_f,help = "Whether to use a pre-determined split or to randomly shuffle the split between each run.")
     parser.add_argument('-care', '--careful',default = 'True', choices = [True, False],type=t_or_f,help = "Whether to have the script ask you if you're sure if you want to \
 overwrite the experiments folder. Turning this off helps if you want to run the tests via a bash or batch script")
@@ -38,10 +39,12 @@ overwrite the experiments folder. Turning this off helps if you want to run the 
     parser.add_argument('-o', '--rootDir',required = True, help = "Directory where the experiments are saved to.")
     parser.add_argument('-en', '--experimentName',required = True, help = "Name of the experiment. A folder with this name is created inside the root directory where all results will be output to.")
     parser.add_argument('-lr', '--learningRate',default = '0.001', help = "Learning rate of the model while training.",type=float)
-    parser.add_argument('-dp', '--dropOutP',default = '0', help = "Dropout percentage of the static model while training.",type=float)
+    parser.add_argument('-dp', '--dropOutP',default = '0', help = "DOES NOT WORK. Weird bug, if anyone wants to help with that, that'd be great. Dropout percentage of the static model while training.",type=float)
     parser.add_argument('-kf', '--kFold',default = '0', help = "Whether to perform kfold cross validation. Number of folds to do. If < 2, then kfold cross validation won't be performed",type=float)
     parser.add_argument('-opt', '--optimizer',default = 'RMSprop', choices = ['adam', 'RMSprop'], help = "Optimizer to use while training")
     parser.add_argument('-estp', '--earlyStop',default = 'True', choices = [True, False],type=t_or_f,help = "Whether to stop after 7 epochs where validation accuracy did not improve.")
+    parser.add_argument('-aug', '--augmentImage',default = 'False', choices = [True, False],type=t_or_f,help = "Whether to augment the images whenver they are retreived from the dataloader.\
+This should increase the image model's ability to generalize")
     
 
     args = parser.parse_args()
@@ -70,7 +73,11 @@ overwrite the experiments folder. Turning this off helps if you want to run the 
     if (args.model == 'static' or args.model == 'image_static'):
         print("* Dropout percentage of the static model is: {}\n".format(args.dropOutP))
     
-    print("* Optimizer used: {}\n \n".format(args.optimizer))
+    print("* Optimizer used: {}\n".format(args.optimizer))
+
+    print("* Batch size: {}\n".format(args.batchSize))
+
+    print("* Augment images: {}\n \n".format(args.augmentImage))
 
 
 
@@ -110,11 +117,14 @@ Are you sure you want to continue?: (y/n)".format(modelResultsDir))
     # Run the model
 
     if (args.model == "static"):
-        models.mimic_static.runModel(args.numRuns,modelResultsDir,args.numEpochs,args.shuffle,args.learningRate,args.dropOutP != 0.0,args.dropOutP,optimizer=optimizer,earlyStop=args.earlyStop,kfold=args.kFold)
+        models.mimic_static.runModel(args.numRuns,modelResultsDir,args.numEpochs,args.shuffle,args.learningRate,args.dropOutP != 0.0,args.dropOutP,optimizer=optimizer,
+        earlyStop=args.earlyStop,kfold=args.kFold,batch_size=args.batchSize)
     elif (args.model == "image"):
-        models.mimic_image.runModel(args.numRuns,modelResultsDir,args.numEpochs,args.shuffle,args.learningRate,optimizer=optimizer,earlyStop=args.earlyStop,kfold=args.kFold)
+        models.mimic_image.runModel(args.numRuns,modelResultsDir,args.numEpochs,args.shuffle,args.learningRate,optimizer=optimizer,
+        earlyStop=args.earlyStop,kfold=args.kFold,batch_size=args.batchSize,augmentImages=args.augmentImage)
     elif (args.model == "image_static"):
-        models.mimic_image_static.runModel(args.numRuns,modelResultsDir,args.numEpochs,args.shuffle,args.learningRate,args.dropOutP != 0.0,args.dropOutP,optimizer=optimizer,earlyStop=args.earlyStop,kfold=args.kFold)
+        models.mimic_image_static.runModel(args.numRuns,modelResultsDir,args.numEpochs,args.shuffle,args.learningRate,args.dropOutP != 0.0,args.dropOutP,optimizer=optimizer,
+        earlyStop=args.earlyStop,kfold=args.kFold,batch_size=args.batchSize,augmentImages=args.augmentImage)
 
 
 

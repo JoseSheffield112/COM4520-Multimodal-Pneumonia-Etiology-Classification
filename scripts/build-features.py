@@ -77,21 +77,21 @@ def get_image_data():
     train_images = pickle.load(f)
     print("Train image data length:",len(train_images))
     f.close()
-    train_images = [(sample['hadm_id'].item(),sample['img'].detach().cpu().numpy()) for sample in train_images]
+    train_images = [(sample['hadm_id'].item(),np.squeeze(sample['img'].detach().cpu().numpy(),axis=0)) for sample in train_images]
     train_images = pd.DataFrame(train_images,columns = ['hadm_id','image']).set_index('hadm_id')
 
     f = open(image_data_root + '/valid.pk', 'rb')
     valid_images = pickle.load(f)
     print("Valid image data length:",len(valid_images))
     f.close()
-    valid_images = [(sample['hadm_id'].item(),sample['img'].detach().cpu().numpy()) for sample in valid_images]
+    valid_images = [(sample['hadm_id'].item(),np.squeeze(sample['img'].detach().cpu().numpy(),axis=0)) for sample in valid_images]
     valid_images = pd.DataFrame(valid_images,columns = ['hadm_id','image']).set_index('hadm_id')
 
     f = open(image_data_root + '/test.pk', 'rb')
     test_images = pickle.load(f)
     print("Test image data length:",len(test_images))
     f.close()
-    test_images = [(sample['hadm_id'].item(),sample['img'].detach().cpu().numpy()) for sample in test_images]
+    test_images = [(sample['hadm_id'].item(),np.squeeze(sample['img'].detach().cpu().numpy(),axis=0)) for sample in test_images]
     test_images = pd.DataFrame(test_images, columns = ['hadm_id','image']).set_index('hadm_id')
 
     cohort_images = pd.concat([train_images, test_images, valid_images])
@@ -156,7 +156,6 @@ if __name__=='__main__':
     train_static = format_static(train_table)
     print('Static shape:', train_static.shape)
     train_images = train_table.image.values
-    print('Images shape:', train_images.shape)
     train_labels = train_table.etiology.values
     print('Labels shape:', train_labels.shape)
     print('Saving train csv...')
