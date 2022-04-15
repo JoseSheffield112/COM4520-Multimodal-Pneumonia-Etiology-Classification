@@ -65,7 +65,7 @@ def runModel(nrRuns,outputRoot,nrEpochs,shuffle_split = True,lr =0.001,dropout=F
 
             outputStats(stats,outputRoot, "/run-{}-{}-validation.csv".format(str(i), MODEL_NAME))
         #Output test statistics to csv file
-        pd.DataFrame(test_statistics,columns=['acc','f1_score_1','f1_score_2','precision_1','precision_2','recall_1','recall_2','true','predicted']).to_csv(outputRoot + "/{}-test-stats.csv".format(MODEL_NAME))
+        pd.DataFrame(test_statistics,columns=['acc','f1_score_1','f1_score_2','precision_1','precision_2','recall_1','recall_2','true','predicted']).to_csv(outputRoot + "/{}-test.csv".format(MODEL_NAME))
     
     else:# Perform k cross validation
         avg_val_accuracies = []

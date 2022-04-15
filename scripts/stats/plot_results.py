@@ -117,9 +117,16 @@ def calculateAverageData(experimentDir,modelName,args):
         avgpoints[1] = np.array(avgpoints[1])
     
     testcsvPath = [resultsDir + '/' + x for x in os.listdir(resultsDir) if x.endswith("test.csv")]
-    testavg = pd.read_csv(testcsvPath[0])['acc'].mean()
-    
-    return (avgpoints,testavg) 
+    acc_avg = pd.read_csv(testcsvPath[0])['acc'].mean()
+    f1_1_avg = pd.read_csv(testcsvPath[0])['f1_score_1'].mean()
+    f1_2_avg = pd.read_csv(testcsvPath[0])['f1_score_2'].mean()
+
+    precision_1_avg = pd.read_csv(testcsvPath[0])['precision_1'].mean()
+    precision_2_avg = pd.read_csv(testcsvPath[0])['precision_2'].mean()
+
+    recall_1_avg = pd.read_csv(testcsvPath[0])['recall_1'].mean()
+    recall_2_avg = pd.read_csv(testcsvPath[0])['recall_2'].mean()
+    return (avgpoints,acc_avg,f1_1_avg,f1_2_avg,precision_1_avg,precision_2_avg,recall_1_avg,recall_2_avg) 
     
 
 def calculateMaxData(experimentDir,modelName):
@@ -190,8 +197,9 @@ def main():
     #Only static model
     staticDir = experimentDir + "/{}".format('static')
     if(exists(staticDir)):
-        (avg_points_static,average_testacc_static) = calculateAverageData(experimentDir,'static',args)
-        (max_points_static,max_testacc_static) = calculateMaxData(experimentDir,'static')
+        (static_avg_points,static_average_testacc,static_f1_1_avg,static_f1_2_avg,static_precision_1_avg,
+        static_precision_2_avg,static_recall_1_avg,static_recall_2_avg) = calculateAverageData(experimentDir,'static',args)
+        (static_max_points,static_max_testacc) = calculateMaxData(experimentDir,'static')
         
         #plotXYPoints([avg_points_static],[],"Static model: Average accuracy on validation while training",outputDirRoot + '/static-avg-validation.png')
         #plotXYPoints([max_points_static],[],"Static model: Best run accuracy on validation while training",outputDirRoot + '/static-max-validation.png')
@@ -201,48 +209,63 @@ def main():
     #Only the image model
     imageDir = experimentDir + "/{}".format('image')
     if(exists(imageDir)):
-        (avg_points_image,average_testacc_image) = calculateAverageData(experimentDir,'image',args)
-        (max_points_image,max_testacc_image) = calculateMaxData(experimentDir,'image')
+        (image_avg_points,image_average_testacc,image_f1_1_avg,image_f1_2_avg,image_precision_1_avg,
+        image_precision_2_avg,image_recall_1_avg,image_recall_2_avg) = calculateAverageData(experimentDir,'image',args)
+        (image_max_points,image_max_testacc) = calculateMaxData(experimentDir,'image')
         #plotXYPoints([avg_points_image],[],"Image model: Average accuracy on validation while training",outputDirRoot + '/image-avg-validation.png')
         #plotXYPoints([max_points_image],[],"Image model: Best run accuracy on validation while training",outputDirRoot + '/image-max-validation.png')
 
-        barplot(['image'],[average_testacc_image],'Average test accuracy of the image model',outputDirRoot + '/image_avg_test_accuracy.png')
-        barplot(['image'],[max_testacc_image],'Test accuracy of the best run of the image model',outputDirRoot + '/image_max_test_accuracy.png')        
+        barplot(['image'],[image_average_testacc],'Average test accuracy of the image model',outputDirRoot + '/image_avg_test_accuracy.png')
+        barplot(['image'],[image_max_testacc],'Test accuracy of the best run of the image model',outputDirRoot + '/image_max_test_accuracy.png')        
 
     #Image and static model
     image_staticDir = experimentDir + "/{}".format('image_static')
     if(exists(image_staticDir)):
-        (avg_points_imagestatic,average_testacc_imagestatic) = calculateAverageData(experimentDir,'image_static',args)
-        (max_points_imagestatic,max_testacc_imagestatic) = calculateMaxData(experimentDir,'image_static')
+        (imagestatic_avg_points,imagestatic_average_testacc,imagestatic_f1_1_avg,imagestatic_f1_2_avg,imagestatic_precision_1_avg,
+        imagestatic_precision_2_avg,imagestatic_recall_1_avg,imagestatic_recall_2_avg) = calculateAverageData(experimentDir,'image_static',args)
+        (imagestatic_max_points,imagestatic_max_testacc) = calculateMaxData(experimentDir,'image_static')
 
         #plotXYPoints([avg_points_imagestatic],[],"Image_Static model: Average accuracy on validation while training",outputDirRoot + '/image_static-avg-validation.png')
         #plotXYPoints([max_points_imagestatic],[],"Image_Static model: Best run accuracy on validation while training",outputDirRoot + '/image_static-max-validation.png')
 
-        barplot(['image_static'],[average_testacc_imagestatic],'Average test accuracy of: image_static',outputDirRoot + '/average-testacc-image_static.png')
+        barplot(['image_static'],[imagestatic_average_testacc],'Average test accuracy of: image_static',outputDirRoot + '/average-testacc-image_static.png')
         
         barPlotModelTestAccuracies(experimentDir,'image_static',outputDirRoot + '/all-image_static-test_acc.png')
     
 
     #Comparison of static and imageStatic: averages / max performance
     if(exists(staticDir) and exists(image_staticDir)):
-        barplot(['static','image_static'],[average_testacc_static,average_testacc_imagestatic],'Average test accuracies of: image_static and static',outputDirRoot + '/compare-average-testacc-static-vs-image_static.png')
-        barplot(['static','image_static'],[max_testacc_static,max_testacc_imagestatic],'Test accuracies of the best runs of: image_static and static',outputDirRoot + '/compare-max-testacc-static-vs-image_static.png')
+        barplot(['static','image_static'],[static_average_testacc,imagestatic_average_testacc],'Average test accuracies of: image_static and static',outputDirRoot + '/compare-average-testacc-static-vs-image_static.png')
+        barplot(['static','image_static'],[static_max_testacc,imagestatic_max_testacc],'Test accuracies of the best runs of: image_static and static',outputDirRoot + '/compare-max-testacc-static-vs-image_static.png')
         
         #plotXYPoints([avg_points_static,avg_points_imagestatic],['static','image_static'],"Comparison of average accuracy while training: static vs static_image",outputDirRoot + '/comparison-avg-validation-staticAndImageStatic.png')
         #plotXYPoints([max_points_static,max_points_imagestatic],['static','image_static'],"Comparison of best models accuracy while training: static vs static_image",outputDirRoot + '/comparison-max-validation-staticAndImageStatic.png')
 
     #Comparison of static and imageStatic and image:
     if(exists(staticDir) and exists(image_staticDir) and exists(imageDir)):
-        barplot(['image','static','image_static'],[average_testacc_image,average_testacc_static,average_testacc_imagestatic],'Average test accuracies of: image_static, static and image',outputDirRoot + '/compare-average-testacc-all.png')
-        barplot(['image','static','image_static'],[max_testacc_image,max_testacc_static,max_testacc_imagestatic],'Test accuracies of the best runs of: image_static, static and image',outputDirRoot + '/compare-max-testacc-all.png')
+        #Average stats:
+        barplot(['image','static','image_static'],[image_average_testacc,static_average_testacc,imagestatic_average_testacc],'Average test accuracies of: image_static, static and image',outputDirRoot + '/compare-average-testacc-all.png')
         
+        barplot(['image','static','image_static'],[image_f1_1_avg,static_f1_1_avg,imagestatic_f1_1_avg],'Average f1 score on the viral class of: image_static, static and image',outputDirRoot + '/compare-average-f1_1-all.png')
+        barplot(['image','static','image_static'],[image_f1_2_avg,static_f1_2_avg,imagestatic_f1_2_avg],'Average f1 score on the bacterial class of: image_static, static and image',outputDirRoot + '/compare-average-f1_2-all.png')
+
+        barplot(['image','static','image_static'],[image_precision_1_avg,static_precision_1_avg,imagestatic_precision_1_avg],'Average precision on the viral class of: image_static, static and image',outputDirRoot + '/compare-average-precision_1-all.png')
+        barplot(['image','static','image_static'],[image_precision_2_avg,static_precision_2_avg,imagestatic_precision_2_avg],'Average precision on the bacterial class of: image_static, static and image',outputDirRoot + '/compare-average-precision_2-all.png')
+
+        barplot(['image','static','image_static'],[image_recall_1_avg,static_recall_1_avg,imagestatic_recall_1_avg],'Average recall on the viral class of: image_static, static and image',outputDirRoot + '/compare-average-recall_1-all.png')
+        barplot(['image','static','image_static'],[image_recall_2_avg,static_recall_2_avg,imagestatic_recall_2_avg],'Average recall on the bacterial class of: image_static, static and image',outputDirRoot + '/compare-average-recall_2-all.png')
+        
+        barplot(['image','static','image_static'],[image_max_testacc,static_max_testacc,imagestatic_max_testacc],'Test accuracies of the best runs of: image_static, static and image',outputDirRoot + '/compare-max-testacc-all.png')
+        #Upload these to a csv so that they can be put into a table:
+
+
         #plotXYPoints([avg_points_image,avg_points_static,avg_points_imagestatic],['image','static','image_static'],"Comparison of average accuracy while training: all",outputDirRoot + '/comparison-avg-validation-all.png')
         #plotXYPoints([max_points_image,max_points_static,max_points_imagestatic],['image','static','image_static'],"Comparison of best models accuracy while training: all",outputDirRoot + '/comparison-max-validation-all.png')
 
     #Comparison of static and image: averages / max performance
     if(exists(staticDir) and exists(imageDir)):
-        barplot(['static','image'],[average_testacc_static,average_testacc_image],'Average test accuracies of: static and image',outputDirRoot + '/compare-average-testacc-static-vs-image.png')
-        barplot(['static','image'],[max_testacc_static,max_testacc_image],'Test accuracies of the best runs of: static and image',outputDirRoot + '/compare-max-testacc-static-vs-image.png')
+        barplot(['static','image'],[static_average_testacc,image_average_testacc],'Average test accuracies of: static and image',outputDirRoot + '/compare-average-testacc-static-vs-image.png')
+        barplot(['static','image'],[static_max_testacc,image_max_testacc],'Test accuracies of the best runs of: static and image',outputDirRoot + '/compare-max-testacc-static-vs-image.png')
         
         #plotXYPoints([avg_points_static,avg_points_image],['static','image'],"Comparison of average accuracy while training: static vs image",outputDirRoot + '/comparison-avg-validation-staticAndImage.png')
         #plotXYPoints([max_points_static,max_points_image],['static','image'],"Comparison of best models accuracy while training: static vs image",outputDirRoot + '/comparison-max-validation-staticAndImage.png')

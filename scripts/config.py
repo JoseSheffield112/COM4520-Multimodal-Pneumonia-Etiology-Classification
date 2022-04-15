@@ -36,4 +36,4 @@ mimic_code_root = 'C:/dev/darwin/mimic-code'
 
 #CONFIGS YOU NEED TO RUN THE MODELS:
 pretrained_root = 'pretrained'
-impkPath = 'C:\dev\darwin\datasetExploration\data\im_w_icd10_updated.pk'
+impkPath = 'C:\dev\darwin\datasetExploration\data\ourim9April_img_squeezed.pk'
