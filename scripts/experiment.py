@@ -45,7 +45,8 @@ overwrite the experiments folder. Turning this off helps if you want to run the 
     parser.add_argument('-estp', '--earlyStop',default = 'True', choices = [True, False],type=t_or_f,help = "Whether to stop after 7 epochs where validation accuracy did not improve.")
     parser.add_argument('-aug', '--augmentImage',default = 'False', choices = [True, False],type=t_or_f,help = "Whether to augment the images whenver they are retreived from the dataloader.\
 This should increase the image model's ability to generalize")
-    
+    parser.add_argument('-save', '--saveModels',default = 'False', choices = [True, False],type=t_or_f,help = "Whether to save the model with best accuracy on validation for every run. This will also save the test dataloader used\
+by the model. Note this will save as many models as runs.")
 
     args = parser.parse_args()
     
@@ -77,7 +78,9 @@ This should increase the image model's ability to generalize")
 
     print("* Batch size: {}\n".format(args.batchSize))
 
-    print("* Augment images: {}\n \n".format(args.augmentImage))
+    print("* Augment images: {}\n".format(args.augmentImage))
+
+    print("* Save models: {}\n \n".format(args.saveModels))
 
 
 
@@ -118,13 +121,13 @@ Are you sure you want to continue?: (y/n)".format(modelResultsDir))
 
     if (args.model == "static"):
         models.mimic_static.runModel(args.numRuns,modelResultsDir,args.numEpochs,args.shuffle,args.learningRate,args.dropOutP != 0.0,args.dropOutP,optimizer=optimizer,
-        earlyStop=args.earlyStop,kfold=args.kFold,batch_size=args.batchSize)
+        earlyStop=args.earlyStop,kfold=args.kFold,batch_size=args.batchSize,save_models=args.saveModels)
     elif (args.model == "image"):
         models.mimic_image.runModel(args.numRuns,modelResultsDir,args.numEpochs,args.shuffle,args.learningRate,optimizer=optimizer,
-        earlyStop=args.earlyStop,kfold=args.kFold,batch_size=args.batchSize,augmentImages=args.augmentImage)
+        earlyStop=args.earlyStop,kfold=args.kFold,batch_size=args.batchSize,augmentImages=args.augmentImage,save_models=args.saveModels)
     elif (args.model == "image_static"):
         models.mimic_image_static.runModel(args.numRuns,modelResultsDir,args.numEpochs,args.shuffle,args.learningRate,args.dropOutP != 0.0,args.dropOutP,optimizer=optimizer,
-        earlyStop=args.earlyStop,kfold=args.kFold,batch_size=args.batchSize,augmentImages=args.augmentImage)
+        earlyStop=args.earlyStop,kfold=args.kFold,batch_size=args.batchSize,augmentImages=args.augmentImage,save_models=args.saveModels)
 
 
 

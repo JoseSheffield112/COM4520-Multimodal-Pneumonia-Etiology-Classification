@@ -152,7 +152,7 @@ def barplot(bottomNames, values,title,outputPath):
     plt.title(title)
     plt.ylabel("Accuracy")
     add_value_label(list(range(0,len(bottomNames))),values)
-    plt.savefig(outputPath)
+    plt.savefig(outputPath, format='eps')
     plt.clf()
 
 def barPlotModelTestAccuracies(experimentDir,modelName,outputDir):
