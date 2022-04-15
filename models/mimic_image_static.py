@@ -38,7 +38,9 @@ def save_model_and_test_data(model,testDataLoader,outputRoot,run,MODEL_NAME):
     pickle.dump(testDataLoader, file=f)
     f.close()
 
-def runModel(nrRuns,outputRoot,nrEpochs,shuffle_split = True,lr =0.001,dropout=False,dropoutP=0.1,optimizer=torch.optim.RMSprop,earlyStop = True,kfold = 0,augmentImages = True,batch_size = 3,save_models=False):
+def runModel(nrRuns,outputRoot,nrEpochs,shuffle_split = True,lr =0.001,dropout=False,dropoutP=0.1,
+            optimizer=torch.optim.RMSprop,earlyStop = True,kfold = 0,augmentImages = True,batch_size = 3,save_models=False,patience=7,
+            early_stop_metric = 'acc'):
 
     MODEL_NAME = "image_static"
     static_output_size = 100
@@ -52,7 +54,8 @@ def runModel(nrRuns,outputRoot,nrEpochs,shuffle_split = True,lr =0.001,dropout=F
             encoders, head, fusion = get_encoders_head_fusion(static_output_size,dropout,dropoutP)
 
             # train
-            stats,model,bestacc = train(encoders, fusion, head, traindata, validdata, nrEpochs, auprc=True,lr = lr,early_stop=earlyStop,optimtype=optimizer)
+            stats,model,bestacc = train(encoders, fusion, head, traindata, validdata, nrEpochs, auprc=True,lr = lr,early_stop=earlyStop,
+            optimtype=optimizer,max_patience=patience,early_stop_metric=early_stop_metric)
 
             if save_models:
                 save_model_and_test_data(model,testdata,outputRoot,i,MODEL_NAME)
@@ -83,7 +86,8 @@ def runModel(nrRuns,outputRoot,nrEpochs,shuffle_split = True,lr =0.001,dropout=F
 
                 encoders, head, fusion = get_encoders_head_fusion(static_output_size,dropout,dropoutP)
                 # train
-                stats,model,bestacc = train(encoders, fusion, head, traindata, validdata, nrEpochs, auprc=True,lr = lr,early_stop=earlyStop,optimtype=optimizer)
+                stats,model,bestacc = train(encoders, fusion, head, traindata, validdata, nrEpochs,
+                 auprc=True,lr = lr,early_stop=earlyStop,optimtype=optimizer,max_patience=patience,early_stop_metric=early_stop_metric)
                 allAcc.append(bestacc)
 
                 if (bestbestAcc < bestacc):

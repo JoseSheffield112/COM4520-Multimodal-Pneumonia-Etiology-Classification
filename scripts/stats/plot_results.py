@@ -116,7 +116,7 @@ def calculateAverageData(experimentDir,modelName,args):
         avgpoints[0] = np.array(avgpoints[0])
         avgpoints[1] = np.array(avgpoints[1])
     
-    testcsvPath = [resultsDir + '/' + x for x in os.listdir(resultsDir) if x.endswith("test.csv")]
+    testcsvPath = [resultsDir + '/' + x for x in os.listdir(resultsDir) if x.endswith("test-stats.csv")]
     acc_avg = pd.read_csv(testcsvPath[0])['acc'].mean()
     f1_1_avg = pd.read_csv(testcsvPath[0])['f1_score_1'].mean()
     f1_2_avg = pd.read_csv(testcsvPath[0])['f1_score_2'].mean()
@@ -140,7 +140,7 @@ def calculateMaxData(experimentDir,modelName):
     '''
     resultsDir = experimentDir + "/{}".format(modelName)
 
-    testcsvPath = [resultsDir + '/' + x for x in os.listdir(resultsDir) if x.endswith("test.csv")]
+    testcsvPath = [resultsDir + '/' + x for x in os.listdir(resultsDir) if x.endswith("test-stats.csv")]
     testDataFrame = pd.read_csv(testcsvPath[0])['acc']
     testMaxIdx = testDataFrame.idxmax()
     csvMax = [resultsDir + '/' + x for x in os.listdir(resultsDir) if x.startswith("run-{}".format(str(testMaxIdx)))][0]
@@ -159,7 +159,7 @@ def barplot(bottomNames, values,title,outputPath):
     plt.title(title)
     plt.ylabel("Accuracy")
     add_value_label(list(range(0,len(bottomNames))),values)
-    plt.savefig(outputPath, format='eps')
+    plt.savefig(outputPath, format='png')
     plt.clf()
 
 def barPlotModelTestAccuracies(experimentDir,modelName,outputDir):
@@ -168,7 +168,7 @@ def barPlotModelTestAccuracies(experimentDir,modelName,outputDir):
     '''
     resultsDir = experimentDir + "/{}".format(modelName)
 
-    testcsvPath = [resultsDir + '/' + x for x in os.listdir(resultsDir) if x.endswith("test.csv")]
+    testcsvPath = [resultsDir + '/' + x for x in os.listdir(resultsDir) if x.endswith("test-stats.csv")]
     testAccuracies = pd.read_csv(testcsvPath[0])['acc']
     testAccuracies = testAccuracies.tolist()
 
@@ -257,7 +257,7 @@ def main():
         
         barplot(['image','static','image_static'],[image_max_testacc,static_max_testacc,imagestatic_max_testacc],'Test accuracies of the best runs of: image_static, static and image',outputDirRoot + '/compare-max-testacc-all.png')
         #Upload these to a csv so that they can be put into a table:
-
+        [(image_average_testacc,image_f1_1_avg,image_f1_2_avg,image_precision_1_avg,image_precision_2_avg,image_recall_1_avg,image_recall_2_avg)]
 
         #plotXYPoints([avg_points_image,avg_points_static,avg_points_imagestatic],['image','static','image_static'],"Comparison of average accuracy while training: all",outputDirRoot + '/comparison-avg-validation-all.png')
         #plotXYPoints([max_points_image,max_points_static,max_points_imagestatic],['image','static','image_static'],"Comparison of best models accuracy while training: all",outputDirRoot + '/comparison-max-validation-all.png')

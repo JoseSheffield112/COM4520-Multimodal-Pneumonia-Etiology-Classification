@@ -32,6 +32,8 @@ def main():
     parser.add_argument('-nr', '--numRuns', default='5',type=int)
     parser.add_argument('-ne', '--numEpochs', default='20',type=int)
     parser.add_argument('-bs', '--batchSize', default='3',type=int,help = "Batch size while training")
+    parser.add_argument('-pat', '--patience', default='7',type=int,help = "Used with --earlyStop. Number of epochs to wait for an improvement for.")
+    parser.add_argument('-estm', '--earlyStopMetric',default = 'acc', choices = ['valid', 'acc'],help = "What metric to use for early stopping.")
     parser.add_argument('-sf', '--shuffle',default = 'True', choices = [True, False],type=t_or_f,help = "Whether to use a pre-determined split or to randomly shuffle the split between each run.")
     parser.add_argument('-care', '--careful',default = 'True', choices = [True, False],type=t_or_f,help = "Whether to have the script ask you if you're sure if you want to \
 overwrite the experiments folder. Turning this off helps if you want to run the tests via a bash or batch script")
@@ -63,6 +65,10 @@ by the model. Note this will save as many models as runs.")
     print("\n\nPerforming experiment {} on the {} model for {} epochs and {} runs. \nThe results will be stored in the: '{}' directory \n\n".format(args.experimentName,args.model,str(args.numEpochs),str(args.numRuns),modelResultsDir))
     
     print("* Early stop = {}\n".format(str(args.earlyStop)))
+
+    print("* Patience : {}\n".format(args.patience))
+
+    print("* Early stop metric : {}\n".format(args.earlyStopMetric))
 
     if args.shuffle :
         print("* The valiation/training/testing split will be randomly shuffled between each run. The shuffle will be stratified.\n")
@@ -121,13 +127,13 @@ Are you sure you want to continue?: (y/n)".format(modelResultsDir))
 
     if (args.model == "static"):
         models.mimic_static.runModel(args.numRuns,modelResultsDir,args.numEpochs,args.shuffle,args.learningRate,args.dropOutP != 0.0,args.dropOutP,optimizer=optimizer,
-        earlyStop=args.earlyStop,kfold=args.kFold,batch_size=args.batchSize,save_models=args.saveModels)
+        earlyStop=args.earlyStop,kfold=args.kFold,batch_size=args.batchSize,save_models=args.saveModels,patience=args.patience,early_stop_metric=args.earlyStopMetric)
     elif (args.model == "image"):
         models.mimic_image.runModel(args.numRuns,modelResultsDir,args.numEpochs,args.shuffle,args.learningRate,optimizer=optimizer,
-        earlyStop=args.earlyStop,kfold=args.kFold,batch_size=args.batchSize,augmentImages=args.augmentImage,save_models=args.saveModels)
+        earlyStop=args.earlyStop,kfold=args.kFold,batch_size=args.batchSize,augmentImages=args.augmentImage,save_models=args.saveModels,patience=args.patience,early_stop_metric=args.earlyStopMetric)
     elif (args.model == "image_static"):
         models.mimic_image_static.runModel(args.numRuns,modelResultsDir,args.numEpochs,args.shuffle,args.learningRate,args.dropOutP != 0.0,args.dropOutP,optimizer=optimizer,
-        earlyStop=args.earlyStop,kfold=args.kFold,batch_size=args.batchSize,augmentImages=args.augmentImage,save_models=args.saveModels)
+        earlyStop=args.earlyStop,kfold=args.kFold,batch_size=args.batchSize,augmentImages=args.augmentImage,save_models=args.saveModels,patience=args.patience,early_stop_metric=args.earlyStopMetric)
 
 
 
