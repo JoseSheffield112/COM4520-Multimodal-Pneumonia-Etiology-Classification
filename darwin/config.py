@@ -46,7 +46,7 @@ output_root = 'output'
 
 #Statistics
 #Path to root of folder where statistics are output when running the models by default.
-stats_root = 'stats'
+stats_root = output_root + '/stats'
 #Path to root of folder where graphs are output by default.
 graphs_root = stats_root + '/graphs'
 
