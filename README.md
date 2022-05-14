@@ -13,7 +13,7 @@ This assumes that you have access to mimic-iv https://mimic.mit.edu/ .
 
 # Running the models
 
-1. Within the `config/darwin/config.py` script, set the value of the `dataPath` variable to be the path of the output of the previous scripts/darwin/build-features.py script. That is, the `output/im.pk` file.
+1. Within the `config/darwin/config.py` script, set the value of the `dataPath` variable to be the path of the output of the previous `scripts/darwin/build-features.py` script. That is, the `output/im.pk` file.
 
 Use the `scripts/darwin/experiment.py` to run the models. From the root folder of this repo, run `python scripts/darwin/experiment.py -h` for guidance on how to run an experiment.
 
