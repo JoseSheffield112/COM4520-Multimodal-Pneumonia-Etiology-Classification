@@ -7,13 +7,13 @@
 # Obtaining the data to run the models
 This assumes that you have access to mimic-iv https://mimic.mit.edu/ .
 
-1. Within the `config/darwin/config.py` script, set the value of root_mimiciv to the path of the root folder of where on your computer you hold the mimic iv csv data.
+1. Within the `scripts/darwin/config.py` script, set the value of root_mimiciv to the path of the root folder of where on your computer you hold the mimic iv csv data.
 2. Run `scripts/darwin/build-tables.py` to get a stripped version of mimic-iv.
 3. Run `scripts/darwin/build-features.py` to get the data for the models. This will be stored under `output/im.pk` .
 
 # Running the models
 
-1. Within the `config/darwin/config.py` script, set the value of the `dataPath` variable to be the path of the output of the previous `scripts/darwin/build-features.py` script. That is, the `output/im.pk` file.
+1. Within the `scripts/darwin/config.py` script, set the value of the `dataPath` variable to be the path of the output of the previous `scripts/darwin/build-features.py` script. That is, the `output/im.pk` file.
 
 Use the `scripts/darwin/experiment.py` to run the models. From the root folder of this repo, run: 
 
