@@ -1,63 +1,38 @@
-# COM4520---PreProcessing
-MIMIC-iv pre-processing code
+# Multimodal-based Pneumonia Etiology Classification codebase
 
-# Setup
-- Place MIMIC-iv datasets in the `/datasets` folder
-- Place cohorts in the `/cohorts` folder
-- Modify `/scripts/config.py` to your liking
-- Be sure to have [Python 3](https://www.python.org/downloads/) installed
+# Dependencies
+- Pytorch (LTS, 1.8.2) https://pytorch.org/get-started/locally/
+- TorchXrayVision https://github.com/mlmed/torchxrayvision
 
-# Usage
+# Obtaining the data to run the models
+This assumes that you have access to mimic-iv https://mimic.mit.edu/.
 
-## Generating a cohort dataset from the complete dataset and a cohort
-1. Place the complete dataset inside the `/datasets` folder
-2. Place the cohort folder inside the `/cohorts` folder
-5. Modify `in_data_root`, `out_data_root`, `cohort_root` in `/scripts/config.py` to point to the respective folders
-6. Run `/scripts/build-tables.py`
+If you want to also obtain the stripped version of mimic-iv:
 
-## Reduce or strip an existing dataset
-1. Place the dataset inside the `/datasets` folder
-2. Modify `origin_root`, `output_root` in `/scripts/config.py` to point to the dataset
-4. Adjust the `build_tables` call in `/scripts/build-tables.py` to your liking
-5. Run `/scripts/build-tables.py`
+1. Within the `darwin/config.py` script, set the value of root_mimiciv to the path of the root folder of where on your computer you have the mimic-iv data stored.
+2. Run `scripts/darwin/build-tables.py` to get a stripped version of mimic-iv.
+3. [TEMP]FOR JOHOO OR MAX: Include here your script that would give us access to your image data. Running this script should place the serialized pickle files in the path pointed to by the `image_data_pickled_root` variable inside `darwin/config.py`.
+4. Run `scripts/darwin/build-features.py` to get the data for the models. This will be stored under `output/im.pk`.
 
-## Generating a feature from an existing dataset
-1. Place the dataset inside the `/datasets` folder
-2. Modify `origin_root` in `scripts/config.py` to point to the dataset
-3. Run the corresponding script from `/scripts/features`
-4. Find the output csv file in `/intermediates` (if `save_intermediates` is enabled in the config) and pickle file in `/features`
+Alternatively, if you don't want to obtain the stripped version of mimic-iv:
+1. Within the `darwin/config.py` change the value of the `origin_root` variable to point to the root folder of where on your computer you have the mimic-iv data stored.
+2. [TEMP]FOR JOHOO OR MAX: Include here your script that would give us access to your image data. Running this script should place the serialized pickle files in the path pointed to by the `image_data_pickled_root` variable inside `darwin/config.py`.
+3. Run `darwin/build-features.py` to get the data for the models. This will be stored under `output/im.pk`.
 
-## Generating a combined features table from an existing dataset
-1. Place the dataset inside the `/datasets` folder
-2. Modify `origin_root` in `scripts/config.py` to point to the dataset
-3. Run `/scripts/build-features.py`
-4. Find the output csv files in `/intermediates` (if `save_intermediates` is enabled in the config) and npy files in `/features`
-5. Find the output file(s) in `/output`
+# Running the models
 
-## Generating a combined features table with previously-built features
-1. Place the `.pickle` files in `/features` if they are not already there
-2. Disable `overwrite_cache` in `/scripts/config.py`
-3. Run `/scripts/build-features.py`
+1. Within the `scripts/darwin/config.py` script, set the value of the `dataPath` variable to be the path of the output of the previous `scripts/darwin/build-features.py` script. That is, the `output/im.pk` file.
 
-# Features implemented
-| Feature | Description | Range of possible values | Values per admission |
-| --- |---| --- | --- |
-| AIDS | Whether the patient has Acquired ImmunoDeficiency Syndrome | x ∈ {0, 1} | 1 |
-| Gender | Whether the patient is male or female | x ∈ {0, 1} | 1 |
-| Influenza | Whether the patient has the flu | x ∈ {0, 1} | 1 |
-| Heartrate | The patients' hourly heartrate over 24h | 0 < x < 300 | 24
-| Hematocrit | The patient's red blood cell count min/max/mean | ? < x < ? | 3
-| MSCancer | Whether the patient has metastatic cancer | x ∈ {0, 1} | 1 |
-| Mycoplasma | Whether the patient has mycoplasma pneumoniae | x ∈ {0, 1} | 1 |
-| PO2FO2Ratio | The ratio of arterial oxygen to inspired oxygen over 24h | ? < x < ? | 24
-| RSV | Whether the patient has Respiratory Syncytial Virus | x ∈ {0, 1} | 1 |
-| SARS | Whether the patient has SARS-CoV | x ∈ {0, 1} | 1 |
-| Staphylococcus | Whether the patient has Staphylococcus | x ∈ {0, 1} | 1 |
-| Systolic_Blood_Pressure | The patients' hourly systolic blood pressure over 24h | ? < x < ? | 24
-| Temperature | The patients' hourly temperature (°C) over 24h | 25 < x < 50 | 24
-| Whitebloodcells | The patient's white blood cell count min/max/mean | 0 < x < 1000 | 3
+Use the `darwin/experiment.py` to run the models. From the root folder of this repo, run: 
 
-# Using this repository with low memory
-The dataset we are working with is quite large so you will have trouble processing it if you are working on a machine with low memory. There are several ways we have allowed the code to be run with lower memory usage, but on some machines it will still be necessary to use a [reduced or stripped](#reduce-or-strip-an-existing-dataset) version of MIMIC-iv rather than using the original. A [cohort](#generating-a-cohort-dataset-from-the-complete-dataset-and-a-cohort) is an example of a reduced dataset.
-- When reading through tables, we split the tables into chunks to be read one by one, dropping unneeded records and columns as soon as possible to make sure as little memory as possible is wasted.
-- ~~We implemented a low memory option to `scripts/build_features` which will allow the compiled npz output to be built from individual npy feature files, rather than building it in memory alongside the features.~~
+```python darwin/experiment.py -h```
+
+for guidance on how to run an experiment.
+
+## Example of a possible experiment:
+
+```python darwin/experiment.py -m image_static -sf True -nr 20 -ne 20 -o [pathToRootOfExperiment] -en [experimentName] -estp True -aug False --earlyStopMetric valid -pat 7```
+
+Will run the multimodal image and static model for 20 runs and 20 epochs, with a random train/test split for every run with data augmentation enabled (Every time an image sample is retreived from the train set, it is randomly scaled and rotated to help avoid regularization). Early stop is enabled, using validation loss as a metric with patience=7 (If valloss does not improve after 7 runs, the training will stop). 
+
+The results of the experiment will be stored at [pathToRootOfExperiment]\\[experimentName]\\[modelName]. modelName is the same value as what was input to the -m option.
