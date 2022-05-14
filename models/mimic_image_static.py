@@ -115,6 +115,7 @@ def runModel(nrRuns,outputRoot,nrEpochs,shuffle_split = True,lr =0.001,dropout=F
     #Write the arhitecture of the model to a file
     with open(outputRoot + "/model_arhitecture.txt", 'w') as f:
         f.write('Static output layer: ' + str(static_output_size) + '\n')
+        f.write('Image output layer: ' + str(const.image_encoder_output_size) + '\n')
 
 def outputStats(stats,root,csvName):
     # Outputs statistics to csvPath

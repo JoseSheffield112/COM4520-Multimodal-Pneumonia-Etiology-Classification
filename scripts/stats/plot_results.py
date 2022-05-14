@@ -88,6 +88,14 @@ def plotValidationAccWhileTraining(csvPaths, labels, plotTitle, outputPath):
 #- A model_name-test.csv file containing accuracy on the test 
 #data for each run.
 
+def averageMetricsCsv(experimentDir,modelName,outputDirRoot):
+    resultsDir = experimentDir + "/{}".format(modelName)
+    testcsvPath = [resultsDir + '/' + x for x in os.listdir(resultsDir) if x.endswith("test-stats.csv")]
+    testDataFrame = pd.read_csv(testcsvPath[0],usecols=['acc','f1_score_1','f1_score_2','precision_1','precision_2','recall_1','recall_2'])
+    testDataFrame.mean(axis=0).to_csv(outputDirRoot + "/avg-all-metrics-{}.csv".format(modelName))
+    testDataFrame.std(axis=0).to_csv(outputDirRoot + "/std-all-metrics-{}.csv".format(modelName))
+
+
 def calculateAverageData(experimentDir,modelName,args):
     '''
     PARAMETERS:
@@ -194,9 +202,11 @@ def main():
     experimentDir = args.experimentsRoot + '/' + args.experimentName
     outputDirRoot = args.outputDir
 
+
     #Only static model
     staticDir = experimentDir + "/{}".format('static')
     if(exists(staticDir)):
+        averageMetricsCsv(experimentDir,'static',outputDirRoot)
         (static_avg_points,static_average_testacc,static_f1_1_avg,static_f1_2_avg,static_precision_1_avg,
         static_precision_2_avg,static_recall_1_avg,static_recall_2_avg) = calculateAverageData(experimentDir,'static',args)
         (static_max_points,static_max_testacc) = calculateMaxData(experimentDir,'static')
@@ -209,6 +219,7 @@ def main():
     #Only the image model
     imageDir = experimentDir + "/{}".format('image')
     if(exists(imageDir)):
+        averageMetricsCsv(experimentDir,'image',outputDirRoot)
         (image_avg_points,image_average_testacc,image_f1_1_avg,image_f1_2_avg,image_precision_1_avg,
         image_precision_2_avg,image_recall_1_avg,image_recall_2_avg) = calculateAverageData(experimentDir,'image',args)
         (image_max_points,image_max_testacc) = calculateMaxData(experimentDir,'image')
@@ -221,6 +232,7 @@ def main():
     #Image and static model
     image_staticDir = experimentDir + "/{}".format('image_static')
     if(exists(image_staticDir)):
+        averageMetricsCsv(experimentDir,'image_static',outputDirRoot)
         (imagestatic_avg_points,imagestatic_average_testacc,imagestatic_f1_1_avg,imagestatic_f1_2_avg,imagestatic_precision_1_avg,
         imagestatic_precision_2_avg,imagestatic_recall_1_avg,imagestatic_recall_2_avg) = calculateAverageData(experimentDir,'image_static',args)
         (imagestatic_max_points,imagestatic_max_testacc) = calculateMaxData(experimentDir,'image_static')
@@ -257,7 +269,6 @@ def main():
         
         barplot(['image','static','image_static'],[image_max_testacc,static_max_testacc,imagestatic_max_testacc],'Test accuracies of the best runs of: image_static, static and image',outputDirRoot + '/compare-max-testacc-all.png')
         #Upload these to a csv so that they can be put into a table:
-        [(image_average_testacc,image_f1_1_avg,image_f1_2_avg,image_precision_1_avg,image_precision_2_avg,image_recall_1_avg,image_recall_2_avg)]
 
         #plotXYPoints([avg_points_image,avg_points_static,avg_points_imagestatic],['image','static','image_static'],"Comparison of average accuracy while training: all",outputDirRoot + '/comparison-avg-validation-all.png')
         #plotXYPoints([max_points_image,max_points_static,max_points_imagestatic],['image','static','image_static'],"Comparison of best models accuracy while training: all",outputDirRoot + '/comparison-max-validation-all.png')
