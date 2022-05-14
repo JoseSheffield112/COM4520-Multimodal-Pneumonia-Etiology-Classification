@@ -9,7 +9,7 @@ This assumes that you have access to mimic-iv https://mimic.mit.edu/ .
 
 1. Within the `scripts/darwin/config.py` script, set the value of root_mimiciv to the path of the root folder of where on your computer you hold the mimic iv csv data.
 2. Run `scripts/darwin/build-tables.py` to get a stripped version of mimic-iv.
-3. Run `scripts/darwin/build-features.py` to get the data for the models. This will be stored under `output/im.pk` .
+3. Run `scripts/darwin/build-features.py` to get the data for the models. This will be stored under `output/im.pk`.
 
 # Running the models
 
