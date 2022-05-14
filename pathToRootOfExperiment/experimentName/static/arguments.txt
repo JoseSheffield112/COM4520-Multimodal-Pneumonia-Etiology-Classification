@@ -1,2 +1,0 @@
-darwin/experiment.py -m static -sf True -nr 20 -ne 20 -o pathToRootOfExperiment -en experimentName -estp True -aug False --earlyStopMetric valid -pat 7 -kf 3 
- Impk path : C:\dev\darwin\datasetExploration\data\ourim9April_img_squeezed.pk
