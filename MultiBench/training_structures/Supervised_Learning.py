@@ -2,9 +2,9 @@
 import torch
 from torch import nn
 import time
-from eval_scripts.performance import AUPRC, f1_score, accuracy, eval_affect
-from eval_scripts.complexity import all_in_one_train, all_in_one_test
-from eval_scripts.robustness import relative_robustness, effective_robustness, single_plot
+from MultiBench.eval_scripts.performance import AUPRC, f1_score, accuracy, eval_affect
+from MultiBench.eval_scripts.complexity import all_in_one_train, all_in_one_test
+from MultiBench.eval_scripts.robustness import relative_robustness, effective_robustness, single_plot
 from tqdm import tqdm
 import copy
 import sklearn.metrics
