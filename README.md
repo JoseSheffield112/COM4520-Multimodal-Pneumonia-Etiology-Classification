@@ -5,14 +5,15 @@
 - TorchXrayVision https://github.com/mlmed/torchxrayvision
 
 # Obtaining the data to run the models
-This assumes that you have access to mimic-iv https://mimic.mit.edu/ .
-If you want to also get the stripped version of mimic-iv:
+This assumes that you have access to mimic-iv https://mimic.mit.edu/.
+
+If you want to also obtain the stripped version of mimic-iv:
 
 1. Within the `scripts/darwin/config.py` script, set the value of root_mimiciv to the path of the root folder of where on your computer you have the mimic-iv data stored.
 2. Run `scripts/darwin/build-tables.py` to get a stripped version of mimic-iv.
 3. Run `scripts/darwin/build-features.py` to get the data for the models. This will be stored under `output/im.pk`.
 
-Alternatively, if you don't want to get the stripped version of mimic-iv:
+Alternatively, if you don't want to obtain the stripped version of mimic-iv:
 1. Within the `scripts/darwin/config.py` change the value of the `origin_root` variable to point to the root folder of where on your computer you have the mimic-iv data stored.
 2. Run `scripts/darwin/build-features.py` to get the data for the models. This will be stored under `output/im.pk`.
 
