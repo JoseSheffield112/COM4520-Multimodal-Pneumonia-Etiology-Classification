@@ -19,6 +19,8 @@ Alternatively, if you don't want to obtain the stripped version of mimic-iv:
 2. [TEMP]FOR JOHOO: Include here your script that would give us access to your image data. Running this script should place the serialized pickle files in the path pointed to by the `image_data_pickled_root` variable inside `darwin/config.py`.
 3. Run `darwin/build-features.py` to get the data for the models. This will be stored under `output/im.pk`.
 
+NOTE TO TEAM: We'll put one of these in a batch script for windows users  and a bash shell for linux users after all scripts are in place
+
 # Running the models
 
 1. Within the `scripts/darwin/config.py` script, set the value of the `dataPath` variable to be the path of the output of the previous `scripts/darwin/build-features.py` script. That is, the `output/im.pk` file.
