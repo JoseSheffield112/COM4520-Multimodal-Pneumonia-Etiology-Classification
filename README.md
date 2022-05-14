@@ -11,15 +11,17 @@ If you want to also obtain the stripped version of mimic-iv:
 
 1. Within the `darwin/config.py` script, set the value of root_mimiciv to the path of the root folder of where on your computer you have the mimic-iv data stored.
 2. Run `scripts/darwin/build-tables.py` to get a stripped version of mimic-iv.
-3. [TEMP]FOR JOHOO: Include here your script that would give us access to your image data. Running this script should place the serialized pickle files in the path pointed to by the `image_data_pickled_root` variable inside `darwin/config.py`.
-4. Run `scripts/darwin/build-features.py` to get the data for the models. This will be stored under `output/im.pk`.
+3. [TEMP]FOR JOHOO: Include here your script that would give us access to the image data. Running this script should place the serialized pickle files in the path pointed to by the `image_data_pickled_root` variable inside `darwin/config.py` named as test.pk, train.pk and valid.pk.
+4. [TEMP]FOR MAX: Include here your script that would give us access to the cohort. Running this script should place the data.csv,test.csv,train.csv and valid.csv files of the cohort in the path pointed to by the `cohort_root` variable inside `darwin/config.py`
+5. Run `scripts/darwin/build-features.py` to get the data for the models. This will be stored under `output/im.pk`.
 
 Alternatively, if you don't want to obtain the stripped version of mimic-iv:
 1. Within the `darwin/config.py` change the value of the `origin_root` variable to point to the root folder of where on your computer you have the mimic-iv data stored.
-2. [TEMP]FOR JOHOO: Include here your script that would give us access to your image data. Running this script should place the serialized pickle files in the path pointed to by the `image_data_pickled_root` variable inside `darwin/config.py`.
-3. Run `darwin/build-features.py` to get the data for the models. This will be stored under `output/im.pk`.
+2. [TEMP]FOR JOHOO(Same script as above): Include here your script that would give us access to the image data. Running this script should place the serialized pickle files in the path pointed to by the `image_data_pickled_root` variable inside `darwin/config.py` named as test.pk, train.pk and valid.pk.
+3. [TEMP]FOR MAX(Same script as above): Include here your script that would give us access to the cohort. Running this script should place the data.csv,test.csv,train.csv and valid.csv files of the cohort in the path pointed to by the `cohort_root` variable inside `darwin/config.py`
+4. Run `darwin/build-features.py` to get the data for the models. This will be stored under `output/im.pk`.
 
-NOTE TO TEAM: We'll put one of these in a batch script for windows users  and a bash shell for linux users after all scripts are in place
+NOTE TO TEAM: We'll make a batch script for windows users and a bash shell for linux users to run all these scripts sequentially. After Johoo's and Max's scripts are in place.
 
 # Running the models
 
