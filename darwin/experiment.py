@@ -72,7 +72,7 @@ by the model. Note this will save as many models as runs.")
     print("* Early stop metric : {}\n".format(args.earlyStopMetric))
 
     if args.shuffle and args.kFold < 2:
-        print("* The valiation/training/testing split will be randomly shuffled between each run. The shuffle will be stratified.\n")
+        print("* The valiation/training/testing split will be randomly shuffled for each run. The shuffle will be stratified.\n")
     elif args.kFold < 2:
         print("* The valiation/training/testing split will be the same for every run.\n")
     elif args.kFold >=2:
