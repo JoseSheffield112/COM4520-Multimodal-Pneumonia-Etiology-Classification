@@ -1,43 +1,26 @@
-# COM4520---PreProcessing
-MIMIC-iv pre-processing code
+# Multimodal-based Pneumonia Etiology Classification codebase
 
-# Setup
-- Place MIMIC-iv datasets in the `/datasets` folder
-- Place cohorts in the `/cohorts` folder
-- Modify `/scripts/config.py` to your liking
-- Be sure to have [Python 3](https://www.python.org/downloads/) installed
+# Dependencies
+- Pytorch (LTS, 1.8.2) https://pytorch.org/get-started/locally/
+- TorchXrayVision https://github.com/mlmed/torchxrayvision
 
-# Usage
+# Obtaining the data to run the models
+This assumes that you have access to mimic-iv https://mimic.mit.edu/ .
 
-## Generating a cohort dataset from the complete dataset and a cohort
-1. Place the complete dataset inside the `/datasets` folder
-2. Place the cohort folder inside the `/cohorts` folder
-5. Modify `in_data_root`, `out_data_root`, `cohort_root` in `/scripts/config.py` to point to the respective folders
-6. Run `/scripts/build-tables.py`
+1. Within the `config/darwin/config.py` script, set the value of root_mimiciv to the path of the root folder of where on your computer you hold the mimic iv csv data.
+2. Run `scripts/darwin/build-tables.py` to get a stripped version of mimic-iv.
+3. Run `scripts/darwin/build-features.py` to get the data for the models. This will be stored under 'output/im.pk' .
 
-## Reduce or strip an existing dataset
-1. Place the dataset inside the `/datasets` folder
-2. Modify `origin_root`, `output_root` in `/scripts/config.py` to point to the dataset
-4. Adjust the `build_tables` call in `/scripts/build-tables.py` to your liking
-5. Run `/scripts/build-tables.py`
+# Running the models
 
-## Generating a feature from an existing dataset
-1. Place the dataset inside the `/datasets` folder
-2. Modify `origin_root` in `scripts/config.py` to point to the dataset
-3. Run the corresponding script from `/scripts/features`
-4. Find the output csv file in `/intermediates` (if `save_intermediates` is enabled in the config) and pickle file in `/features`
+1. Within the `config/darwin/config.py` script, set the value of the `dataPath` variable to be the path of the output of the previous scripts/darwin/build-features.py script. That is, the `output/im.pk` file.
 
-## Generating a combined features table from an existing dataset
-1. Place the dataset inside the `/datasets` folder
-2. Modify `origin_root` in `scripts/config.py` to point to the dataset
-3. Run `/scripts/build-features.py`
-4. Find the output csv files in `/intermediates` (if `save_intermediates` is enabled in the config) and npy files in `/features`
-5. Find the output file(s) in `/output`
+Use the scripts/darwin/experiment.py to run the models. From the root folder of this repo, run `python scripts/darwin/experiment.py -h` for guidance on how to run an experiment.
 
-## Generating a combined features table with previously-built features
-1. Place the `.pickle` files in `/features` if they are not already there
-2. Disable `overwrite_cache` in `/scripts/config.py`
-3. Run `/scripts/build-features.py`
+Example of a possible experiment:
+`python scripts\experiment.py -m image_static -sf True -nr 20 -ne 20 -o [pathToRootOfExperiment] -en last_experiment_image_static_1 -estp True -aug False --earlyStopMetric valid -pat 7`
+
+Will run the multimodal image and static model for 20 runs and 20 epochs, with a random train/test split for every run with data augmentation enabled (Every time an image sample is retreived from the train set, it is randomly scaled and rotated to help avoid regularization). Early stop is enabled, using validation loss as a metric with patience=7 (If valloss does not improve after 7 runs, the training will stop).
 
 # Features implemented
 | Feature | Description | Range of possible values | Values per admission |
