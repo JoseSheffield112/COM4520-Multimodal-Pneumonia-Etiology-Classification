@@ -29,7 +29,7 @@ for guidance on how to run an experiment.
 
 ## Example of a possible experiment:
 
-```python scripts\darwin\experiment.py -m image_static -sf True -nr 20 -ne 20 -o [pathToRootOfExperiment] -en [experimentName] -estp True -aug False --earlyStopMetric valid -pat 7```
+```python scripts/darwin/experiment.py -m image_static -sf True -nr 20 -ne 20 -o [pathToRootOfExperiment] -en [experimentName] -estp True -aug False --earlyStopMetric valid -pat 7```
 
 Will run the multimodal image and static model for 20 runs and 20 epochs, with a random train/test split for every run with data augmentation enabled (Every time an image sample is retreived from the train set, it is randomly scaled and rotated to help avoid regularization). Early stop is enabled, using validation loss as a metric with patience=7 (If valloss does not improve after 7 runs, the training will stop). 
 
