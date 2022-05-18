@@ -27,7 +27,7 @@ NOTE TO TEAM: We'll make a batch script for windows users and a bash shell scrip
 
 1. Within the `darwin/config.py` script, set the value of the `dataPath` variable to be the path of the output of the previous `darwin/build-features.py` script. That is, the `output/im.pk` file.
 
-Use the `darwin/experiment.py` to run the models. From the root folder of this repo, run: 
+Use the `darwin/experiment.py` script to run the models. From the root folder of this repo, run: 
 
 ```python darwin/experiment.py -h```
 
