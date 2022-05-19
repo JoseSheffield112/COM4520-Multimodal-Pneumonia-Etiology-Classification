@@ -4,7 +4,7 @@ import pandas as pd
 from skimage.io import imread
 from darwin.config import *
 import darwin.cohort_selection as cohort_selection
-import darwin.perform_split as perform_split
+from darwin.perform_split import perform_split
 from torchxrayvision.datasets import Dataset, normalize
 from sklearn.model_selection import train_test_split
 
@@ -89,13 +89,12 @@ class MIMIC_Pneumonia_Dataset(Dataset):
             before_split = cohort_selection.get_pneumonia_cohort(self.raw_csv, self.metacsv)
         train, val, test = perform_split(before_split, export_to_csv=True, remove_duplicate_hadm=remove_duplicate_hadm)
                
-        if pre_processed:
-            if option == 'train':
-                self.csv = train
-            elif option == 'test':
-                self.csv = val
-            elif option == 'valid':
-                self.csv = test
+        if option == 'train':
+            self.csv = train
+        elif option == 'test':
+            self.csv = val
+        elif option == 'valid':
+            self.csv = test
        
         self.labels = []
 
